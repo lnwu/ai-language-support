@@ -18,7 +18,7 @@ settings:
     MARKETING_VERSION: 0.1.0
   configs:
     Debug:
-      DEBUG_INFORMATION_FORMAT: dwarf-with-dsym
+      DEBUG_INFORMATION_FORMAT: dwarf
     Release:
       DEBUG_INFORMATION_FORMAT: dwarf-with-dsym
 targets:
