@@ -21,6 +21,7 @@
 		C37C84C2319580F8E92FA193 /* PermissionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 72335A2DFF4EAAE4D09B4092 /* PermissionManager.swift */; };
 		D6EAB555E24364406AEFFF10 /* ResultApplier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36D5A86F91D7F509EF66F886 /* ResultApplier.swift */; };
 		F9FF3062AA2548CD76428046 /* LanguageOptimizerApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = E19D6CD08D1DB1E7067C6DAB /* LanguageOptimizerApp.swift */; };
+		2DAE38E0A9BD48A9B4423530 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 6A9ACC2B34064FB79C3D0A42 /* Assets.xcassets */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -40,6 +41,7 @@
 		C7024FBCF7F7ECAF9247D0D1 /* LLMClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LLMClient.swift; sourceTree = "<group>"; };
 		E19D6CD08D1DB1E7067C6DAB /* LanguageOptimizerApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LanguageOptimizerApp.swift; sourceTree = "<group>"; };
 		FDFBB1345F977DA58E5AF956 /* LanguageOptimizer.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = LanguageOptimizer.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		6A9ACC2B34064FB79C3D0A42 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXGroup section */
@@ -66,10 +68,20 @@
 			path = Sources/LanguageOptimizer;
 			sourceTree = "<group>";
 		};
+		BFFE533A8E294435BA94CAAC /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				6A9ACC2B34064FB79C3D0A42 /* Assets.xcassets */,
+			);
+			name = Resources;
+			path = Resources;
+			sourceTree = "<group>";
+		};
 		8AE5A536F599FB0CA6F57B23 = {
 			isa = PBXGroup;
 			children = (
 				18DCC49E01A5836904D6BAAA /* LanguageOptimizer */,
+				BFFE533A8E294435BA94CAAC /* Resources */,
 				D4ACA71310346A2966DA0E65 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -90,6 +102,7 @@
 			buildConfigurationList = 8DE358BD80417236FB8BEAD0 /* Build configuration list for PBXNativeTarget "LanguageOptimizer" */;
 			buildPhases = (
 				1B758298E7194C9F3065BEF4 /* Sources */,
+				AF0B40AE0B6F4A5881C39B6C /* Resources */,
 			);
 			buildRules = (
 			);
@@ -158,6 +171,18 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXResourcesBuildPhase section */
+		AF0B40AE0B6F4A5881C39B6C /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				2DAE38E0A9BD48A9B4423530 /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
 /* End PBXSourcesBuildPhase section */
 
 /* Begin XCBuildConfiguration section */
@@ -303,6 +328,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				COMBINE_HIDPI_IMAGES = YES;
+				ENABLE_APP_INTENTS_METADATA_EXTRACTION = NO;
 				INFOPLIST_FILE = Sources/LanguageOptimizer/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -317,6 +343,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				COMBINE_HIDPI_IMAGES = YES;
+				ENABLE_APP_INTENTS_METADATA_EXTRACTION = NO;
 				INFOPLIST_FILE = Sources/LanguageOptimizer/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
