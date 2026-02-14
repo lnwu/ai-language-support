@@ -1,0 +1,35 @@
+name: LanguageOptimizer
+options:
+  bundleIdPrefix: com.example
+  deploymentTarget:
+    macOS: '26.0'
+settings:
+  base:
+    DEVELOPMENT_TEAM: ''
+    MACOSX_DEPLOYMENT_TARGET: '26.0'
+    SWIFT_VERSION: '6.0'
+    PRODUCT_BUNDLE_IDENTIFIER: com.example.LanguageOptimizer
+    INFOPLIST_FILE: Sources/LanguageOptimizer/Info.plist
+    CODE_SIGN_STYLE: Automatic
+    ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+    ENABLE_HARDENED_RUNTIME: YES
+    ENABLE_APP_SANDBOX: NO
+    CURRENT_PROJECT_VERSION: 1
+    MARKETING_VERSION: 0.1.0
+  configs:
+    Debug:
+      DEBUG_INFORMATION_FORMAT: dwarf-with-dsym
+    Release:
+      DEBUG_INFORMATION_FORMAT: dwarf-with-dsym
+targets:
+  LanguageOptimizer:
+    type: application
+    platform: macOS
+    sources:
+      - Sources/LanguageOptimizer
+    resources:
+      - Resources
+    settings:
+      base:
+        INFOPLIST_FILE: Sources/LanguageOptimizer/Info.plist
+    dependencies: []
