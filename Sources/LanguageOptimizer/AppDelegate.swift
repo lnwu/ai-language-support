@@ -27,10 +27,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     private func setupStatusItem() {
         let statusBar = NSStatusBar.system
-        statusItem = statusBar.statusItem(withLength: NSStatusItem.squareLength)
+        statusItem = statusBar.statusItem(withLength: NSStatusItem.variableLength)
 
         if let button = statusItem?.button {
+            print("[LanguageOptimizer] Status item created")
             button.image = NSImage(systemSymbolName: "wand.and.stars", accessibilityDescription: "Language Optimizer")
+            button.title = " LO"
             button.action = #selector(handleStatusItemClick)
             button.target = self
         }
