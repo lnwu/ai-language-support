@@ -2,7 +2,6 @@ import AppKit
 import SwiftUI
 
 @MainActor
-@main
 final class AppDelegate: NSObject, NSApplicationDelegate {
     private var statusItem: NSStatusItem?
     private var settingsWindowController: NSWindowController?
@@ -16,6 +15,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private let notifier = NotificationPresenter()
 
     func applicationDidFinishLaunching(_ notification: Notification) {
+        NSApp.setActivationPolicy(.accessory)
         setupStatusItem()
         permissionManager.promptIfNeededOnLaunch()
         notifier.requestAuthorization()
@@ -25,14 +25,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         hotkeyListener.start()
     }
 
+
     private func setupStatusItem() {
         let statusBar = NSStatusBar.system
         statusItem = statusBar.statusItem(withLength: NSStatusItem.variableLength)
 
         if let button = statusItem?.button {
-            print("[LanguageOptimizer] Status item created")
             button.image = NSImage(systemSymbolName: "wand.and.stars", accessibilityDescription: "Language Optimizer")
-            button.title = " LO"
             button.action = #selector(handleStatusItemClick)
             button.target = self
         }
