@@ -24,6 +24,8 @@ extension LLMError: LocalizedError {
 
 @MainActor
 final class LLMClient {
+    private let systemPrompt = "修复语法和拼写错误，尽量更简洁"
+
     func optimize(text: String, completion: @escaping @Sendable (Result<String, Error>) -> Void) {
         let settings = SettingsStore.shared.load()
         guard let apiKey = SettingsStore.shared.apiKey() else {
@@ -40,7 +42,6 @@ final class LLMClient {
         request.addValue("application/json", forHTTPHeaderField: "Content-Type")
         request.addValue("Bearer \(apiKey)", forHTTPHeaderField: "Authorization")
 
-        let systemPrompt = settings.goal
         let payload: [String: Any] = [
             "model": settings.modelName,
             "input": [
