@@ -1,5 +1,11 @@
 # Agent 指南
 
+## 约定
+- Agent 只能使用中文回复。
+- 生成代码时不需要注释。
+- 生成文档也必须使用中文。
+- 完成任务时检查 `AGENTS.md` 是否需要更新。
+
 ## 项目
 LanguageOptimizer 是一个 macOS 菜单栏应用，用于优化 Slack 选中文本，调用 OpenAI 兼容 API 并原位替换。系统集成使用 AppKit，设置界面使用 SwiftUI。
 
@@ -23,14 +29,8 @@ LanguageOptimizer 是一个 macOS 菜单栏应用，用于优化 Slack 选中文
 - LLM 客户端：`Sources/LanguageOptimizer/LLMClient.swift`
 - 写回处理：`Sources/LanguageOptimizer/ResultApplier.swift`
 - 配置存储：`Sources/LanguageOptimizer/SettingsStore.swift`、`Sources/LanguageOptimizer/KeychainStore.swift`
-- 测试指南：`docs/testing.md`
 
 ## 说明
 - 仅在 Slack 前台时触发（bundle id：`com.tinyspeck.slackmacgap`）。
 - 使用 macOS Accessibility API 获取选区与写回。
 - `LLMClient` 默认使用 Responses API。
-
-## 约定
-- Agent 只能使用中文回复。
-- 生成代码时不需要注释。
-- 生成文档也必须使用中文。
