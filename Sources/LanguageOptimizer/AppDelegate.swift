@@ -46,8 +46,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         let menu = NSMenu()
         menu.showsStateColumn = false
 
-        let settingsItem = NSMenuItem(title: "Settings", action: #selector(openSettings), keyEquivalent: ",")
-        settingsItem.image = nil
+        let settingsItem = NSMenuItem(title: "Settings...", action: #selector(openSettings), keyEquivalent: ",")
         menu.addItem(settingsItem)
         menu.addItem(NSMenuItem.separator())
 
@@ -80,6 +79,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private func quitApp() {
         NSApp.terminate(nil)
     }
+
 
     private func handleHotkey() {
         guard focusChecker.isSlackFocused() else { return }
