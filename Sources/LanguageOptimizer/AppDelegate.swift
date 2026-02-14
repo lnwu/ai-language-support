@@ -31,7 +31,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         statusItem = statusBar.statusItem(withLength: NSStatusItem.variableLength)
 
         if let button = statusItem?.button {
-            button.image = NSImage(systemSymbolName: "wand.and.stars", accessibilityDescription: "Language Optimizer")
+            let image = NSImage(named: "StatusBarIcon")
+            image?.size = NSSize(width: 18, height: 18)
+            image?.isTemplate = true
+            button.image = image
+            button.imagePosition = .imageOnly
             button.action = #selector(handleStatusItemClick)
             button.target = self
         }
@@ -40,9 +44,16 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     @objc
     private func handleStatusItemClick() {
         let menu = NSMenu()
-        menu.addItem(NSMenuItem(title: "Settings", action: #selector(openSettings), keyEquivalent: ","))
+        menu.showsStateColumn = false
+
+        let settingsItem = NSMenuItem(title: "Settings", action: #selector(openSettings), keyEquivalent: ",")
+        settingsItem.image = nil
+        menu.addItem(settingsItem)
         menu.addItem(NSMenuItem.separator())
-        menu.addItem(NSMenuItem(title: "Quit", action: #selector(quitApp), keyEquivalent: "q"))
+
+        let quitItem = NSMenuItem(title: "Quit", action: #selector(quitApp), keyEquivalent: "q")
+        quitItem.image = nil
+        menu.addItem(quitItem)
 
         statusItem?.menu = menu
         statusItem?.button?.performClick(nil)

@@ -52,10 +52,10 @@ struct SettingsView: View {
         .onAppear {
             loadSettingsIfNeeded()
         }
-        .onChange(of: apiBase) { _ in
+        .onChange(of: apiBase) { _, _ in
             scheduleModelsFetchIfNeeded()
         }
-        .onChange(of: apiKey) { _ in
+        .onChange(of: apiKey) { _, _ in
             scheduleModelsFetchIfNeeded()
         }
     }
