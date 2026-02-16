@@ -10,6 +10,11 @@
       "type": "local",
       "enabled": true,
       "command": ["npx", "-y", "@kimsungwhee/apple-docs-mcp"]
+    },
+    "context7": {
+      "type": "remote",
+      "enabled": true,
+      "url": "https://mcp.context7.com/mcp"
     }
   }
 }
