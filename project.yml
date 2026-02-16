@@ -1,3 +1,8 @@
+# WARNING: 不要运行 xcodegen generate！
+# xcodegen 2.44.1 生成 objectVersion=77 格式，不会生成 PBXResourcesBuildPhase，
+# 导致 Assets.xcassets 不会被打包进 app bundle。
+# 当前 pbxproj 已手动修补添加了 Resources build phase。
+# 如需修改项目配置，请直接编辑 .xcodeproj/project.pbxproj。
 name: LanguageOptimizer
 options:
   bundleIdPrefix: com.example
@@ -5,7 +10,7 @@ options:
     macOS: '26.0'
 settings:
   base:
-    DEVELOPMENT_TEAM: ''
+    DEVELOPMENT_TEAM: 2N5PF5L8LT
     MACOSX_DEPLOYMENT_TARGET: '26.0'
     SWIFT_VERSION: '6.0'
     PRODUCT_BUNDLE_IDENTIFIER: com.example.LanguageOptimizer
@@ -28,7 +33,7 @@ targets:
     sources:
       - Sources/LanguageOptimizer
     resources:
-      - Resources
+      - path: Resources/Assets.xcassets
     settings:
       base:
         INFOPLIST_FILE: Sources/LanguageOptimizer/Info.plist
