@@ -1,8 +1,14 @@
 {
   "images" : [
     {
-      "filename" : "StatusBarIcon.pdf",
-      "idiom" : "mac"
+      "filename" : "StatusBarIcon@1x.png",
+      "idiom" : "mac",
+      "scale" : "1x"
+    },
+    {
+      "filename" : "StatusBarIcon@2x.png",
+      "idiom" : "mac",
+      "scale" : "2x"
     }
   ],
   "info" : {
@@ -10,6 +16,6 @@
     "version" : 1
   },
   "properties" : {
-    "preserves-vector-representation" : true
+    "template-rendering-intent" : "template"
   }
 }

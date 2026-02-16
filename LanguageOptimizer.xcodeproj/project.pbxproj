@@ -8,32 +8,37 @@
 
 /* Begin PBXBuildFile section */
 		0139990537D188EBA54017AA /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1909A109DA163FB0BDF15837 /* AppDelegate.swift */; };
+		AA00112233445566778899BB /* AppState.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA00112233445566778899AA /* AppState.swift */; };
 		1C7B0A3746EA97742A9F4ED9 /* LLMClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7024FBCF7F7ECAF9247D0D1 /* LLMClient.swift */; };
 		27E0C30AB2E51BDA9A87E61E /* SelectionProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D842BDB4459EED8726B3FB1 /* SelectionProvider.swift */; };
+		2B56A99CC12E0EC98BF45786 /* ErrorIndicatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9821245AB8509767B1B238AB /* ErrorIndicatorView.swift */; };
 		2FF9DD3C69F8A46C3E481BF8 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 953212533E62BAB5BC64FFCC /* SettingsView.swift */; };
 		546EA4D406B71002C803D4E2 /* LoadingDotsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C22194C0EC64950E23C4DC79 /* LoadingDotsView.swift */; };
+		6665026AA33E4E8A000E718E /* SettingsTab.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A734FB77B26F1969DCBFC71 /* SettingsTab.swift */; };
 		6C70F678C16ED8F2184FC00A /* KeychainStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0848EE0848D44A29DB4AA0C /* KeychainStore.swift */; };
 		6F08352AB9F0BAB9946711E6 /* OverlayRenderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = C30620A7F6007B8744A9BBD4 /* OverlayRenderer.swift */; };
 		8057CC82DC03D1246483B053 /* SettingsStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CDF069A8784596D279FC6BC /* SettingsStore.swift */; };
 		97D42F4C8B87FD8A2385B980 /* HotkeyListener.swift in Sources */ = {isa = PBXBuildFile; fileRef = 063961AC9F3B41F665D50F2A /* HotkeyListener.swift */; };
+		A1B2C3D4E5F6A7B8C9D0E1F2 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F1E2D3C4B5A69788A9B0C1D2 /* Assets.xcassets */; };
 		BDDC775070F8C2EABBD542A3 /* SlackFocusChecker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 242127DA953B19EDAF170263 /* SlackFocusChecker.swift */; };
-		BEF81A59DF4ECB20F3533B41 /* NotificationPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6ACAD6F3F292745359BD394B /* NotificationPresenter.swift */; };
 		C37C84C2319580F8E92FA193 /* PermissionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 72335A2DFF4EAAE4D09B4092 /* PermissionManager.swift */; };
 		D6EAB555E24364406AEFFF10 /* ResultApplier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36D5A86F91D7F509EF66F886 /* ResultApplier.swift */; };
 		F9FF3062AA2548CD76428046 /* LanguageOptimizerApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = E19D6CD08D1DB1E7067C6DAB /* LanguageOptimizerApp.swift */; };
-		2DAE38E0A9BD48A9B4423530 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 6A9ACC2B34064FB79C3D0A42 /* Assets.xcassets */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		063961AC9F3B41F665D50F2A /* HotkeyListener.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HotkeyListener.swift; sourceTree = "<group>"; };
+		F1E2D3C4B5A69788A9B0C1D2 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		1909A109DA163FB0BDF15837 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		AA00112233445566778899AA /* AppState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppState.swift; sourceTree = "<group>"; };
 		242127DA953B19EDAF170263 /* SlackFocusChecker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SlackFocusChecker.swift; sourceTree = "<group>"; };
 		36D5A86F91D7F509EF66F886 /* ResultApplier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResultApplier.swift; sourceTree = "<group>"; };
+		3A734FB77B26F1969DCBFC71 /* SettingsTab.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsTab.swift; sourceTree = "<group>"; };
 		3CDF069A8784596D279FC6BC /* SettingsStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsStore.swift; sourceTree = "<group>"; };
-		6ACAD6F3F292745359BD394B /* NotificationPresenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationPresenter.swift; sourceTree = "<group>"; };
 		72335A2DFF4EAAE4D09B4092 /* PermissionManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PermissionManager.swift; sourceTree = "<group>"; };
 		818317ECCAF67C5DBD6F66AD /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		953212533E62BAB5BC64FFCC /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		9821245AB8509767B1B238AB /* ErrorIndicatorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ErrorIndicatorView.swift; sourceTree = "<group>"; };
 		9D842BDB4459EED8726B3FB1 /* SelectionProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectionProvider.swift; sourceTree = "<group>"; };
 		C0848EE0848D44A29DB4AA0C /* KeychainStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainStore.swift; sourceTree = "<group>"; };
 		C22194C0EC64950E23C4DC79 /* LoadingDotsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoadingDotsView.swift; sourceTree = "<group>"; };
@@ -41,7 +46,6 @@
 		C7024FBCF7F7ECAF9247D0D1 /* LLMClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LLMClient.swift; sourceTree = "<group>"; };
 		E19D6CD08D1DB1E7067C6DAB /* LanguageOptimizerApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LanguageOptimizerApp.swift; sourceTree = "<group>"; };
 		FDFBB1345F977DA58E5AF956 /* LanguageOptimizer.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = LanguageOptimizer.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		6A9ACC2B34064FB79C3D0A42 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXGroup section */
@@ -49,18 +53,20 @@
 			isa = PBXGroup;
 			children = (
 				1909A109DA163FB0BDF15837 /* AppDelegate.swift */,
+				AA00112233445566778899AA /* AppState.swift */,
+				9821245AB8509767B1B238AB /* ErrorIndicatorView.swift */,
 				063961AC9F3B41F665D50F2A /* HotkeyListener.swift */,
 				818317ECCAF67C5DBD6F66AD /* Info.plist */,
 				C0848EE0848D44A29DB4AA0C /* KeychainStore.swift */,
 				E19D6CD08D1DB1E7067C6DAB /* LanguageOptimizerApp.swift */,
 				C7024FBCF7F7ECAF9247D0D1 /* LLMClient.swift */,
 				C22194C0EC64950E23C4DC79 /* LoadingDotsView.swift */,
-				6ACAD6F3F292745359BD394B /* NotificationPresenter.swift */,
 				C30620A7F6007B8744A9BBD4 /* OverlayRenderer.swift */,
 				72335A2DFF4EAAE4D09B4092 /* PermissionManager.swift */,
 				36D5A86F91D7F509EF66F886 /* ResultApplier.swift */,
 				9D842BDB4459EED8726B3FB1 /* SelectionProvider.swift */,
 				3CDF069A8784596D279FC6BC /* SettingsStore.swift */,
+				3A734FB77B26F1969DCBFC71 /* SettingsTab.swift */,
 				953212533E62BAB5BC64FFCC /* SettingsView.swift */,
 				242127DA953B19EDAF170263 /* SlackFocusChecker.swift */,
 			);
@@ -68,12 +74,11 @@
 			path = Sources/LanguageOptimizer;
 			sourceTree = "<group>";
 		};
-		BFFE533A8E294435BA94CAAC /* Resources */ = {
+		A1B2C3D4E5F60000DEADBEEF /* Resources */ = {
 			isa = PBXGroup;
 			children = (
-				6A9ACC2B34064FB79C3D0A42 /* Assets.xcassets */,
+				F1E2D3C4B5A69788A9B0C1D2 /* Assets.xcassets */,
 			);
-			name = Resources;
 			path = Resources;
 			sourceTree = "<group>";
 		};
@@ -81,7 +86,7 @@
 			isa = PBXGroup;
 			children = (
 				18DCC49E01A5836904D6BAAA /* LanguageOptimizer */,
-				BFFE533A8E294435BA94CAAC /* Resources */,
+				A1B2C3D4E5F60000DEADBEEF /* Resources */,
 				D4ACA71310346A2966DA0E65 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -102,7 +107,7 @@
 			buildConfigurationList = 8DE358BD80417236FB8BEAD0 /* Build configuration list for PBXNativeTarget "LanguageOptimizer" */;
 			buildPhases = (
 				1B758298E7194C9F3065BEF4 /* Sources */,
-				AF0B40AE0B6F4A5881C39B6C /* Resources */,
+				A1B2C3D4E5F6000011111111 /* Resources */,
 			);
 			buildRules = (
 			);
@@ -125,7 +130,7 @@
 				LastUpgradeCheck = 1430;
 				TargetAttributes = {
 					AE9B20CD290C3E5A171A5DD3 = {
-						DevelopmentTeam = "";
+						DevelopmentTeam = 2N5PF5L8LT;
 						ProvisioningStyle = Automatic;
 					};
 				};
@@ -135,7 +140,6 @@
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
-				Base,
 				en,
 			);
 			mainGroup = 8AE5A536F599FB0CA6F57B23;
@@ -155,17 +159,19 @@
 			buildActionMask = 2147483647;
 			files = (
 				0139990537D188EBA54017AA /* AppDelegate.swift in Sources */,
+				AA00112233445566778899BB /* AppState.swift in Sources */,
+				2B56A99CC12E0EC98BF45786 /* ErrorIndicatorView.swift in Sources */,
 				97D42F4C8B87FD8A2385B980 /* HotkeyListener.swift in Sources */,
 				6C70F678C16ED8F2184FC00A /* KeychainStore.swift in Sources */,
 				1C7B0A3746EA97742A9F4ED9 /* LLMClient.swift in Sources */,
 				F9FF3062AA2548CD76428046 /* LanguageOptimizerApp.swift in Sources */,
 				546EA4D406B71002C803D4E2 /* LoadingDotsView.swift in Sources */,
-				BEF81A59DF4ECB20F3533B41 /* NotificationPresenter.swift in Sources */,
 				6F08352AB9F0BAB9946711E6 /* OverlayRenderer.swift in Sources */,
 				C37C84C2319580F8E92FA193 /* PermissionManager.swift in Sources */,
 				D6EAB555E24364406AEFFF10 /* ResultApplier.swift in Sources */,
 				27E0C30AB2E51BDA9A87E61E /* SelectionProvider.swift in Sources */,
 				8057CC82DC03D1246483B053 /* SettingsStore.swift in Sources */,
+				6665026AA33E4E8A000E718E /* SettingsTab.swift in Sources */,
 				2FF9DD3C69F8A46C3E481BF8 /* SettingsView.swift in Sources */,
 				BDDC775070F8C2EABBD542A3 /* SlackFocusChecker.swift in Sources */,
 			);
@@ -174,16 +180,15 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXResourcesBuildPhase section */
-		AF0B40AE0B6F4A5881C39B6C /* Resources */ = {
+		A1B2C3D4E5F6000011111111 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				2DAE38E0A9BD48A9B4423530 /* Assets.xcassets in Resources */,
+				A1B2C3D4E5F6A7B8C9D0E1F2 /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
-/* End PBXSourcesBuildPhase section */
 
 /* Begin XCBuildConfiguration section */
 		652A4AA5D0BAC62D47B5C756 /* Release */ = {
@@ -224,7 +229,7 @@
 				COPY_PHASE_STRIP = NO;
 				CURRENT_PROJECT_VERSION = 1;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = 2N5PF5L8LT;
 				ENABLE_APP_SANDBOX = NO;
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_NS_ASSERTIONS = NO;
@@ -289,7 +294,7 @@
 				COPY_PHASE_STRIP = NO;
 				CURRENT_PROJECT_VERSION = 1;
 				DEBUG_INFORMATION_FORMAT = dwarf;
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = 2N5PF5L8LT;
 				ENABLE_APP_SANDBOX = NO;
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
@@ -328,7 +333,6 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				COMBINE_HIDPI_IMAGES = YES;
-				ENABLE_APP_INTENTS_METADATA_EXTRACTION = NO;
 				INFOPLIST_FILE = Sources/LanguageOptimizer/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -343,7 +347,6 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				COMBINE_HIDPI_IMAGES = YES;
-				ENABLE_APP_INTENTS_METADATA_EXTRACTION = NO;
 				INFOPLIST_FILE = Sources/LanguageOptimizer/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
