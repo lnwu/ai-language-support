@@ -22,7 +22,6 @@
 		6C70F678C16ED8F2184FC00A /* KeychainStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0848EE0848D44A29DB4AA0C /* KeychainStore.swift */; };
 		6F08352AB9F0BAB9946711E6 /* OverlayRenderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = C30620A7F6007B8744A9BBD4 /* OverlayRenderer.swift */; };
 		8057CC82DC03D1246483B053 /* SettingsStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CDF069A8784596D279FC6BC /* SettingsStore.swift */; };
-		97D42F4C8B87FD8A2385B980 /* HotkeyListener.swift in Sources */ = {isa = PBXBuildFile; fileRef = 063961AC9F3B41F665D50F2A /* HotkeyListener.swift */; };
 		A1B2C3D4E5F6A7B8C9D0E1F2 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F1E2D3C4B5A69788A9B0C1D2 /* Assets.xcassets */; };
 		C37C84C2319580F8E92FA193 /* PermissionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 72335A2DFF4EAAE4D09B4092 /* PermissionManager.swift */; };
 		D6EAB555E24364406AEFFF10 /* ResultApplier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36D5A86F91D7F509EF66F886 /* ResultApplier.swift */; };
@@ -30,7 +29,6 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		063961AC9F3B41F665D50F2A /* HotkeyListener.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HotkeyListener.swift; sourceTree = "<group>"; };
 		0C2222222222222222222222 /* AppLogStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppLogStore.swift; sourceTree = "<group>"; };
 		0A2222222222222222222222 /* Hotkey.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Hotkey.swift; sourceTree = "<group>"; };
 		0B2222222222222222222222 /* HotkeyManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HotkeyManager.swift; sourceTree = "<group>"; };
@@ -65,7 +63,6 @@
 				9821245AB8509767B1B238AB /* ErrorIndicatorView.swift */,
 				0A2222222222222222222222 /* Hotkey.swift */,
 				0B2222222222222222222222 /* HotkeyManager.swift */,
-				063961AC9F3B41F665D50F2A /* HotkeyListener.swift */,
 				818317ECCAF67C5DBD6F66AD /* Info.plist */,
 				C0848EE0848D44A29DB4AA0C /* KeychainStore.swift */,
 				E19D6CD08D1DB1E7067C6DAB /* LanguageOptimizerApp.swift */,
@@ -174,7 +171,6 @@
 				AA00112233445566778899BB /* AppState.swift in Sources */,
 				AA00112233445566778899CC /* APILogStore.swift in Sources */,
 				2B56A99CC12E0EC98BF45786 /* ErrorIndicatorView.swift in Sources */,
-				97D42F4C8B87FD8A2385B980 /* HotkeyListener.swift in Sources */,
 				6C70F678C16ED8F2184FC00A /* KeychainStore.swift in Sources */,
 				1C7B0A3746EA97742A9F4ED9 /* LLMClient.swift in Sources */,
 				F9FF3062AA2548CD76428046 /* LanguageOptimizerApp.swift in Sources */,
@@ -259,7 +255,7 @@
 				MARKETING_VERSION = 0.1.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = com.example.LanguageOptimizer;
+				PRODUCT_BUNDLE_IDENTIFIER = com.lnwu.polly;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = macosx;
 				SWIFT_COMPILATION_MODE = wholemodule;
@@ -331,7 +327,7 @@
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = com.example.LanguageOptimizer;
+				PRODUCT_BUNDLE_IDENTIFIER = com.lnwu.polly;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = macosx;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
