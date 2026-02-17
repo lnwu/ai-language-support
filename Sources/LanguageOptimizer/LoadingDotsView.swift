@@ -2,8 +2,8 @@ import AppKit
 
 final class LoadingDotsView: NSView {
     private let dotCount = 3
-    private let dotSize: CGFloat = 4
-    private let dotSpacing: CGFloat = 4
+    private let dotSize: CGFloat = 3
+    private let dotSpacing: CGFloat = 3
     private var dotLayers: [CALayer] = []
 
     override init(frame frameRect: NSRect) {

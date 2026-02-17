@@ -1,11 +1,11 @@
 # 设计方案：Mac 语言优化器（MVP）
 
 ## 目标与范围
-本方案面向 macOS 26，首期仅支持 Slack。用户在 Slack 中选中文本后，使用快捷键 CMD + E 触发优化，调用 OpenAI 兼容 API，返回结果原位替换。API Key 存储在 Keychain，默认优化目标为“修复语法和拼写错误，尽量更简洁”。
+本方案面向 macOS 26，支持任意支持 Accessibility API 的应用。用户在输入框中选中文本后，使用快捷键 CMD + E 触发优化，调用 OpenAI 兼容 API，返回结果原位替换。API Key 存储在 Keychain，默认优化目标为“修复语法和拼写错误，尽量更简洁”。
 
 ## 架构概览
 菜单栏应用作为入口与状态管理，核心能力由五个模块协作：
-- Hotkey Listener：全局监听 CMD + E，在 Slack 聚焦时触发。
+- Hotkey Listener：全局监听 CMD + E。
 - Selection Provider：通过 Accessibility API 获取选中内容与选区坐标。
 - Overlay Renderer：在选区右上角显示三点跳动加载标识。
 - LLM Client：向 OpenAI 兼容 API 发送请求并解析结果。
@@ -17,7 +17,7 @@
 - 展示当前配置状态（可选）。
 
 2) 快捷键监听
-- 只在 Slack 为前台应用时触发。
+- 全局监听 CMD + E。
 - 触发后校验选区内容是否存在。
 
 3) 选区获取
@@ -37,8 +37,8 @@
 - 失败时提示错误并保持原文本。
 
 ## 数据流
-1. 用户选中 Slack 文本并按 CMD + E。
-2. Hotkey Listener 校验 Slack 聚焦状态。
+1. 用户在输入框中选中文本并按 CMD + E。
+2. Hotkey Listener 触发快捷键事件。
 3. Selection Provider 获取选区文本与坐标。
 4. Overlay Renderer 显示三点跳动标识。
 5. LLM Client 发送请求并等待响应。
@@ -65,12 +65,10 @@
 
 ## 测试计划
 - 选区定位精度：单行、多行、不同字体与长度。
-- Slack 聚焦检测正确性。
 - 三点跳动显示位置与 3 秒上限。
 - 请求成功后替换文本的稳定性。
 - API 失败与网络断开时的提示逻辑。
 
 ## 风险与约束
 - Accessibility 权限可能被用户拒绝，影响选区获取。
-- Slack 更新可能影响选区坐标读取稳定性。
 - 3 秒显示上限可能在网络慢时导致提示消失但请求仍在进行。

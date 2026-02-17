@@ -7,7 +7,7 @@
 - 完成任务时检查 `AGENTS.md` 是否需要更新。
 
 ## 项目
-LanguageOptimizer 是一个 macOS 菜单栏应用，用于优化 Slack 选中文本，调用 OpenAI 兼容 API 并原位替换。菜单栏使用 SwiftUI `MenuBarExtra`，设置窗口使用 SwiftUI `Settings` scene，业务逻辑通过 `AppDelegate` 驱动。
+LanguageOptimizer 是一个 macOS 菜单栏应用，用于优化任意应用选中文本，调用 OpenAI 兼容 API 并原位替换。菜单栏使用 SwiftUI `MenuBarExtra`，设置窗口使用 SwiftUI `Settings` scene，业务逻辑通过 `AppDelegate` 驱动。
 
 ## 快速开始
 - 用 Xcode 打开 `LanguageOptimizer.xcodeproj`
@@ -31,7 +31,6 @@ LanguageOptimizer 是一个 macOS 菜单栏应用，用于优化 Slack 选中文
 - 配置存储：`Sources/LanguageOptimizer/SettingsStore.swift`、`Sources/LanguageOptimizer/KeychainStore.swift`
 
 ## 说明
-- 仅在 Slack 前台时触发（bundle id：`com.tinyspeck.slackmacgap`）。
 - 使用 macOS Accessibility API 获取选区与写回。
 - `LLMClient` 默认使用 Responses API。
 - **不要运行 `xcodegen generate`**：xcodegen 2.44.1 生成 objectVersion=77 格式缺少 `PBXResourcesBuildPhase`，会导致 `Assets.xcassets` 不被打包。当前 pbxproj 已手动修补，直接编辑 `.xcodeproj/project.pbxproj` 即可。
