@@ -35,10 +35,16 @@ jobs:
           build \
           CONFIGURATION_BUILD_DIR=./build
           
-    - name: Create zip archive
+    - name: Ad-hoc sign app
       run: |
         cd build
         mv ${{ env.APP_NAME }}.app ${{ env.DISPLAY_NAME }}.app
+        codesign --force --deep --sign - "${{ env.DISPLAY_NAME }}.app"
+        cd ..
+        
+    - name: Create zip archive
+      run: |
+        cd build
         zip -r ../${{ env.DISPLAY_NAME }}.zip ${{ env.DISPLAY_NAME }}.app
         cd ..
         
@@ -83,6 +89,14 @@ jobs:
         printf '  homepage "https://github.com/%s"\n' "$REPO" >> tap/Casks/polly.rb
         printf '\n' >> tap/Casks/polly.rb
         printf '  app "Polly.app"\n' >> tap/Casks/polly.rb
+        printf '\n' >> tap/Casks/polly.rb
+        printf '  caveats do\n' >> tap/Casks/polly.rb
+        printf '    <<~EOS\n' >> tap/Casks/polly.rb
+        printf '      Polly is not signed with a Developer ID certificate.\n' >> tap/Casks/polly.rb
+        printf '      You may need to go to System Settings > Privacy & Security > Security\n' >> tap/Casks/polly.rb
+        printf '      and click "Open Anyway" the first time you run the app.\n' >> tap/Casks/polly.rb
+        printf '    EOS\n' >> tap/Casks/polly.rb
+        printf '  end\n' >> tap/Casks/polly.rb
         printf 'end\n' >> tap/Casks/polly.rb
         
     - name: Commit and push to homebrew-tap
