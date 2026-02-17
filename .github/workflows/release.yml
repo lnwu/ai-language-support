@@ -1,0 +1,93 @@
+name: Release
+
+on:
+  release:
+    types: [published]
+
+env:
+  APP_NAME: Polly
+
+jobs:
+  build-and-release:
+    runs-on: macos-26
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Select Xcode
+      run: |
+        sudo xcode-select -s /Applications/Xcode.app/Contents/Developer
+        xcodebuild -version
+        
+    - name: Build Release
+      run: |
+        xcodebuild -project LanguageOptimizer.xcodeproj \
+          -scheme LanguageOptimizer \
+          -configuration Release \
+          -destination "platform=macOS,arch=arm64" \
+          CODE_SIGN_IDENTITY="" \
+          CODE_SIGNING_REQUIRED=NO \
+          CODE_SIGN_ENTITLEMENTS="" \
+          build \
+          CONFIGURATION_BUILD_DIR=./build
+          
+    - name: Create zip archive
+      run: |
+        cd build
+        zip -r ../${{ env.APP_NAME }}.zip ${{ env.APP_NAME }}.app
+        cd ..
+        
+    - name: Calculate sha256
+      id: sha256
+      run: |
+        echo "sha256=$(shasum -a 256 ${{ env.APP_NAME }}.zip | cut -d ' ' -f 1)" >> $GITHUB_OUTPUT
+        
+    - name: Upload to Release
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        gh release upload ${{ github.event.release.tag_name }} ${{ env.APP_NAME }}.zip --clobber
+        
+    - name: Setup Git
+      run: |
+        git config --global user.name "GitHub Actions"
+        git config --global user.email "actions@github.com"
+        
+    - name: Clone homebrew-tap
+      env:
+        HOMEBREW_TAP_TOKEN: ${{ secrets.HOMEBREW_TAP_TOKEN }}
+      run: |
+        git clone https://oauth2:${HOMEBREW_TAP_TOKEN}@github.com/${{ github.repository_owner }}/homebrew-tap.git tap
+        
+    - name: Update Cask
+      run: |
+        VERSION="${{ github.event.release.tag_name }}"
+        VERSION="${VERSION#v}"
+        SHA256="${{ steps.sha256.outputs.sha256 }}"
+        REPO="${{ github.repository }}"
+        
+        mkdir -p tap/Casks
+        
+        printf 'cask "polly" do\n' > tap/Casks/polly.rb
+        printf '  version "%s"\n' "$VERSION" >> tap/Casks/polly.rb
+        printf '  sha256 "%s"\n' "$SHA256" >> tap/Casks/polly.rb
+        printf '\n' >> tap/Casks/polly.rb
+        printf '  url "https://github.com/%s/releases/download/v#{version}/Polly.zip"\n' "$REPO" >> tap/Casks/polly.rb
+        printf '  name "Polly"\n' >> tap/Casks/polly.rb
+        printf '  desc "macOS menubar app to optimize selected text with AI"\n' >> tap/Casks/polly.rb
+        printf '  homepage "https://github.com/%s"\n' "$REPO" >> tap/Casks/polly.rb
+        printf '\n' >> tap/Casks/polly.rb
+        printf '  app "Polly.app"\n' >> tap/Casks/polly.rb
+        printf 'end\n' >> tap/Casks/polly.rb
+        
+    - name: Commit and push to homebrew-tap
+      run: |
+        cd tap
+        git add Casks/polly.rb
+        if git diff --cached --quiet; then
+          echo "No changes to commit"
+        else
+          git commit -m "Update polly to ${{ github.event.release.tag_name }}"
+          git push origin main
+        fi
