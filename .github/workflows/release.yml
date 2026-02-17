@@ -11,6 +11,8 @@ env:
 jobs:
   build-and-release:
     runs-on: macos-26
+    permissions:
+      contents: write
     
     steps:
     - name: Checkout code
