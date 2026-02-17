@@ -45,12 +45,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                     switch result {
                     case .success(let optimized):
                         AppLogStore.shared.add(level: .info, category: "LLM", message: "优化成功")
-                        let applyResult = self?.resultApplier.apply(text: optimized, targetPid: selection.appPid)
-                        if case .success = applyResult {
-                            if selection.appBundleId == "com.tinyspeck.slackmacgap" {
-                                _ = self?.resultApplier.forcePaste(text: optimized, targetPid: selection.appPid)
-                            }
-                        }
+                        let applyResult = self?.resultApplier.forcePaste(text: optimized, targetPid: selection.appPid)
                         if case .failure = applyResult {
                             AppLogStore.shared.add(level: .error, category: "写入", message: "写入失败")
                             self?.overlayRenderer.showError(at: selection.bounds)
