@@ -24,7 +24,7 @@ extension LLMError: LocalizedError {
 
 @MainActor
 final class LLMClient {
-    private let systemPrompt = "修复语法和拼写错误，尽量更简洁"
+    private let systemPrompt = "Fix grammar and spelling errors, make it more concise"
 
     func optimize(text: String, completion: @escaping @Sendable (Result<String, Error>) -> Void) {
         let settings = SettingsStore.shared.load()
@@ -51,8 +51,11 @@ final class LLMClient {
             "temperature": 0.2
         ]
 
+        let requestBody: String
         do {
-            request.httpBody = try JSONSerialization.data(withJSONObject: payload, options: [])
+            let bodyData = try JSONSerialization.data(withJSONObject: payload, options: .prettyPrinted)
+            request.httpBody = bodyData
+            requestBody = String(data: bodyData, encoding: .utf8) ?? ""
         } catch {
             completion(.failure(error))
             return
@@ -60,22 +63,52 @@ final class LLMClient {
 
         let task = URLSession.shared.dataTask(with: request) { data, response, error in
             Task { @MainActor in
-                if error != nil {
-                    print("[LLMClient] request error: \(error!)")
+                if let error = error {
+                    print("[LLMClient] request error: \(error)")
+                    APILogStore.shared.add(
+                        requestContent: text,
+                        requestBody: requestBody,
+                        responseContent: nil,
+                        isSuccess: false,
+                        errorMessage: error.localizedDescription
+                    )
                     completion(.failure(LLMError.requestFailed))
                     return
                 }
+                
                 guard let http = response as? HTTPURLResponse, (200...299).contains(http.statusCode), let data else {
                     let statusCode = (response as? HTTPURLResponse)?.statusCode ?? -1
                     let body = data.flatMap { String(data: $0, encoding: .utf8) } ?? "(empty)"
                     print("[LLMClient] HTTP \(statusCode): \(body)")
+                    APILogStore.shared.add(
+                        requestContent: text,
+                        requestBody: requestBody,
+                        responseContent: nil,
+                        isSuccess: false,
+                        errorMessage: "HTTP \(statusCode): \(body)"
+                    )
                     completion(.failure(LLMError.invalidResponse))
                     return
                 }
 
+                let responseString = String(data: data, encoding: .utf8) ?? ""
+                
                 if let content = Self.extractText(from: data) {
+                    APILogStore.shared.add(
+                        requestContent: text,
+                        requestBody: requestBody,
+                        responseContent: content,
+                        isSuccess: true
+                    )
                     completion(.success(content))
                 } else {
+                    APILogStore.shared.add(
+                        requestContent: text,
+                        requestBody: requestBody,
+                        responseContent: responseString,
+                        isSuccess: false,
+                        errorMessage: "无法从响应中提取文本"
+                    )
                     completion(.failure(LLMError.invalidResponse))
                 }
             }

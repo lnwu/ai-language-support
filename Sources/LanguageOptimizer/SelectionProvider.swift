@@ -1,8 +1,11 @@
+import AppKit
 import ApplicationServices
 
 struct TextSelection {
     let text: String
     let bounds: CGRect
+    let appPid: pid_t
+    let appBundleId: String
 }
 
 enum SelectionError: Error {
@@ -38,34 +41,85 @@ final class SelectionProvider {
             throw SelectionError.noFocusedElement
         }
 
+        let selectedText = try resolveSelectedText(from: focusedElement as! AXUIElement)
+        let rect = resolveSelectionBounds(from: focusedElement as! AXUIElement) ?? CGRect(origin: NSEvent.mouseLocation, size: .zero)
+        let frontmost = NSWorkspace.shared.frontmostApplication
+        let appPid = frontmost?.processIdentifier ?? 0
+        let appBundleId = frontmost?.bundleIdentifier ?? ""
+        return TextSelection(text: selectedText, bounds: rect, appPid: appPid, appBundleId: appBundleId)
+    }
+
+    private func resolveSelectedText(from element: AXUIElement) throws -> String {
         var selectedTextValue: CFTypeRef?
-        let selectedTextResult = AXUIElementCopyAttributeValue(focusedElement as! AXUIElement, kAXSelectedTextAttribute as CFString, &selectedTextValue)
-        guard selectedTextResult == .success, let selectedText = selectedTextValue as? String, !selectedText.isEmpty else {
-            throw SelectionError.noSelection
+        let selectedTextResult = AXUIElementCopyAttributeValue(element, kAXSelectedTextAttribute as CFString, &selectedTextValue)
+        if selectedTextResult == .success, let selectedText = selectedTextValue as? String, !selectedText.isEmpty {
+            return selectedText
         }
 
+        if let copied = copySelection(), !copied.isEmpty {
+            AppLogStore.log(level: .warning, category: "选区", message: "使用复制兜底")
+            return copied
+        }
+
+        throw SelectionError.noSelection
+    }
+
+    private func resolveSelectionBounds(from element: AXUIElement) -> CGRect? {
         var selectedRangeValue: CFTypeRef?
-        let selectedRangeResult = AXUIElementCopyAttributeValue(focusedElement as! AXUIElement, kAXSelectedTextRangeAttribute as CFString, &selectedRangeValue)
+        let selectedRangeResult = AXUIElementCopyAttributeValue(element, kAXSelectedTextRangeAttribute as CFString, &selectedRangeValue)
         guard selectedRangeResult == .success, let selectedRange = selectedRangeValue else {
-            throw SelectionError.noSelection
+            return nil
         }
 
         var boundsValue: CFTypeRef?
         let boundsResult = AXUIElementCopyParameterizedAttributeValue(
-            focusedElement as! AXUIElement,
+            element,
             kAXBoundsForRangeParameterizedAttribute as CFString,
             selectedRange,
             &boundsValue
         )
         guard boundsResult == .success, let bounds = boundsValue else {
-            throw SelectionError.boundsUnavailable
+            return nil
         }
 
         var rect = CGRect.zero
-        if !AXValueGetValue(bounds as! AXValue, .cgRect, &rect) {
-            throw SelectionError.boundsUnavailable
+        guard AXValueGetValue(bounds as! AXValue, .cgRect, &rect) else {
+            return nil
+        }
+        return rect
+    }
+
+    private func copySelection() -> String? {
+        let pasteboard = NSPasteboard.general
+        let existing = pasteboard.string(forType: .string)
+        pasteboard.clearContents()
+
+        let source = CGEventSource(stateID: .combinedSessionState)
+        let cKey: CGKeyCode = 0x08
+        let cmdDown = CGEvent(keyboardEventSource: source, virtualKey: cKey, keyDown: true)
+        cmdDown?.flags = .maskCommand
+        let cmdUp = CGEvent(keyboardEventSource: source, virtualKey: cKey, keyDown: false)
+        cmdUp?.flags = .maskCommand
+
+        guard let cmdDown, let cmdUp else {
+            restorePasteboard(existing)
+            return nil
         }
 
-        return TextSelection(text: selectedText, bounds: rect)
+        cmdDown.post(tap: .cghidEventTap)
+        cmdUp.post(tap: .cghidEventTap)
+
+        Thread.sleep(forTimeInterval: 0.05)
+        let copied = pasteboard.string(forType: .string)
+        restorePasteboard(existing)
+        return copied
+    }
+
+    private func restorePasteboard(_ existing: String?) {
+        let pasteboard = NSPasteboard.general
+        if let existing {
+            pasteboard.clearContents()
+            pasteboard.setString(existing, forType: .string)
+        }
     }
 }

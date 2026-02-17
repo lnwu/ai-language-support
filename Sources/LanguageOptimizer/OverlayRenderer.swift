@@ -12,9 +12,9 @@ final class OverlayRenderer {
     private var hideTimer: Timer?
     private var currentStyle: OverlayStyle?
 
-    private let loadingSize = CGSize(width: 20, height: 4)
+    private let loadingSize = CGSize(width: 15, height: 3)
     private let errorSize = CGSize(width: 14, height: 14)
-    private let offset = CGPoint(x: 4, y: 4)
+    private let offset = CGPoint(x: 4, y: 1)
 
     func show(at rect: CGRect) {
         showOverlay(at: rect, style: .loading)
@@ -33,11 +33,20 @@ final class OverlayRenderer {
     private func showOverlay(at rect: CGRect, style: OverlayStyle) {
         hideTimer?.invalidate()
 
+        let anchorRect: CGRect
+        if rect.isNull || rect.isEmpty || rect.width <= 0 || rect.height <= 0 || !rect.origin.x.isFinite || !rect.origin.y.isFinite {
+            let mouse = NSEvent.mouseLocation
+            anchorRect = CGRect(origin: mouse, size: .zero)
+        } else {
+            anchorRect = rect
+        }
+
         let size = style == .loading ? loadingSize : errorSize
-        let screenHeight = NSScreen.main?.frame.height ?? 0
+        let screen = NSScreen.screens.first(where: { $0.frame.contains(anchorRect.origin) }) ?? NSScreen.main
+        let screenFrame = screen?.frame ?? .zero
         let origin = CGPoint(
-            x: rect.maxX + offset.x,
-            y: screenHeight - rect.origin.y - size.height - offset.y
+            x: anchorRect.maxX + offset.x,
+            y: screenFrame.maxY - anchorRect.origin.y - size.height - offset.y
         )
         let frame = CGRect(origin: origin, size: size)
 

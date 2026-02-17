@@ -10,7 +10,7 @@ final class HotkeyListener {
         guard globalMonitor == nil else { return }
 
         globalMonitor = NSEvent.addGlobalMonitorForEvents(matching: .keyDown) { [weak self] event in
-            guard event.modifierFlags.contains(.command),
+            guard event.modifierFlags.contains([.command, .shift]),
                   event.charactersIgnoringModifiers?.lowercased() == "e" else { return }
             Task { @MainActor in
                 self?.onHotkey?()
@@ -18,7 +18,7 @@ final class HotkeyListener {
         }
 
         localMonitor = NSEvent.addLocalMonitorForEvents(matching: .keyDown) { [weak self] event in
-            guard event.modifierFlags.contains(.command),
+            guard event.modifierFlags.contains([.command, .shift]),
                   event.charactersIgnoringModifiers?.lowercased() == "e" else { return event }
             Task { @MainActor in
                 self?.onHotkey?()
