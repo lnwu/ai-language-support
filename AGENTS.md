@@ -23,7 +23,7 @@ LanguageOptimizer 是一个 macOS 菜单栏应用，用于优化任意应用选�
 - App 入口：`Sources/LanguageOptimizer/AppDelegate.swift`
 - SwiftUI 包装：`Sources/LanguageOptimizer/LanguageOptimizerApp.swift`
 - 设置界面：`Sources/LanguageOptimizer/SettingsView.swift`
-- 快捷键监听：`Sources/LanguageOptimizer/HotkeyListener.swift`
+- 快捷键监听：`Sources/LanguageOptimizer/HotkeyManager.swift`
 - 选区获取：`Sources/LanguageOptimizer/SelectionProvider.swift`
 - 悬浮层渲染：`Sources/LanguageOptimizer/OverlayRenderer.swift`
 - LLM 客户端：`Sources/LanguageOptimizer/LLMClient.swift`
