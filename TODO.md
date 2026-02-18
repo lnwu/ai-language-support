@@ -2,19 +2,13 @@
 
 ## 待办事项
 
-### 1. 快捷键默认改为 ⇧⌘R
+### ~~1. 快捷键默认改为 ⇧⌘R~~ ✅ 已完成
 
-- **文件**: `Sources/LanguageOptimizer/Hotkey.swift:19-20`
-- **改动**: `default()` 方法中，`keyCode` 从 `kVK_ANSI_E` 改为 `kVK_ANSI_R`，`modifiers` 从 `[.command]` 改为 `[.command, .shift]`，`display` 从 `"⌘E"` 改为 `"⇧⌘R"`
+- **文件**: `Sources/LanguageOptimizer/Hotkey.swift:20`
 
-### 2. 设置窗口支持 Cmd+Tab 切换
+### ~~2. 设置窗口支持 Cmd+Tab 切换~~ ✅ 已完成（方案 A：维持 accessory 策略）
 
-- **问题**: 当前应用为纯菜单栏应用（accessory），不参与 Cmd+Tab 切换，设置窗口打开后容易被其他窗口遮挡且无法通过 Cmd+Tab 找回
-- **方案**: 打开设置窗口时临时将 `NSApp.setActivationPolicy(.regular)` 使应用出现在 Dock 和 Cmd+Tab 中；关闭设置窗口后切回 `.accessory`
-- **文件**: `Sources/LanguageOptimizer/LanguageOptimizerApp.swift`
-- **改动**:
-  - 打开设置时调用 `NSApp.setActivationPolicy(.regular)`
-  - 监听设置窗口关闭事件（通过 `NSWindow.willCloseNotification`），关闭后调用 `NSApp.setActivationPolicy(.accessory)`
+- **结论**: 动态切换 `activationPolicy` 会导致 macOS 在切回 `.accessory` 时自动隐藏所有窗口，Apple 文档对此无官方指导。决定保持纯 `.accessory` 策略，不参与 Cmd+Tab，以 `openSettings()` + `NSApp.activate()` 确保设置窗口正常弹出即可。
 
 ### 3. 权限说明加上 Keychain 说明
 

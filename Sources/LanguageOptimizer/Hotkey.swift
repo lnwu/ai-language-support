@@ -17,7 +17,7 @@ struct Hotkey: Equatable {
     }
 
     static func `default`() -> Hotkey {
-        Hotkey(keyCode: UInt32(kVK_ANSI_E), modifiers: [.command], display: "⌘E")
+        Hotkey(keyCode: UInt32(kVK_ANSI_R), modifiers: [.command, .shift], display: "⇧⌘R")
     }
 
     static func build(keyCode: UInt16, modifiers: NSEvent.ModifierFlags, displayKey: String?) -> Hotkey {

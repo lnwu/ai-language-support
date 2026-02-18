@@ -9,8 +9,7 @@ struct LanguageOptimizerApp: App {
     var body: some Scene {
         MenuBarExtra {
             Button("设置…") {
-                NSApp.activate()
-                openSettings()
+                openSettingsWindow()
             }
             .keyboardShortcut(",")
             Divider()
@@ -24,13 +23,17 @@ struct LanguageOptimizerApp: App {
         .onChange(of: appState.needsOpenSettings) { _, newValue in
             if newValue {
                 appState.needsOpenSettings = false
-                NSApp.activate()
-                openSettings()
+                openSettingsWindow()
             }
         }
 
         Settings {
             SettingsView()
         }
+    }
+
+    private func openSettingsWindow() {
+        NSApp.activate()
+        openSettings()
     }
 }
