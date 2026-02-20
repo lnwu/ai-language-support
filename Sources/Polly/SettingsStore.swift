@@ -24,7 +24,7 @@ final class SettingsStore {
     }
 
     func load() -> AppSettings {
-        let apiBase = defaults.string(forKey: Keys.apiBase) ?? "https://api.openai.com/v1"
+        let apiBase = defaults.string(forKey: Keys.apiBase) ?? ""
         let modelName = defaults.string(forKey: Keys.modelName) ?? ""
         let hotkey = loadHotkey()
         return AppSettings(apiBase: apiBase, modelName: modelName, hotkey: hotkey)

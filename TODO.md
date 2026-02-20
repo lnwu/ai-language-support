@@ -2,12 +2,6 @@
 
 ## 待办事项
 
-- [ ] API 设置默认不给任何值
-  - **文件**: `Sources/Polly/SettingsStore.swift:27`
-  - **改动**: `load()` 方法中 `apiBase` 默认值从 `"https://api.openai.com/v1"` 改为 `""`
-  - **文件**: `Sources/Polly/SettingsView.swift:6`
-  - **改动**: `@State apiBase` 初始值从 `"https://api.openai.com/v1"` 改为 `""`
-
 - [ ] 回填策略：默认 AX 写入，白名单强制粘贴
   - **问题**: 当前 `AppDelegate.handleHotkey()` 无条件调用 `forcePaste()`，所有应用都走模拟粘贴（Cmd+V）路径，会干扰用户剪贴板
   - **方案**: 默认使用 `ResultApplier.apply()`（优先 Accessibility API 直接写入，失败再回退粘贴）；仅白名单应用使用 `forcePaste()`

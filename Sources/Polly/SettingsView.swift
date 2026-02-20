@@ -3,7 +3,7 @@ import Foundation
 
 @MainActor
 struct SettingsView: View {
-    @State private var apiBase: String = "https://api.openai.com/v1"
+    @State private var apiBase: String = ""
     @State private var modelName: String = ""
     @State private var apiKey: String = ""
     @State private var loaded = false
