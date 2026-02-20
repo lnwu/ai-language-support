@@ -54,7 +54,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                     switch result {
                     case .success(let optimized):
                         AppLogStore.shared.add(level: .info, category: "LLM", message: "优化成功")
-                        let applyResult = self?.resultApplier.forcePaste(text: optimized, targetPid: selection.appPid)
+                        let forcePasteBundleIds = ["com.tinyspeck.slackmacgap", "com.apple.Notes"]
+                        let applyResult: Result<Void, Error>?
+                        if forcePasteBundleIds.contains(selection.appBundleId) {
+                            applyResult = self?.resultApplier.forcePaste(text: optimized, targetPid: selection.appPid)
+                        } else {
+                            applyResult = self?.resultApplier.apply(text: optimized, targetPid: selection.appPid)
+                        }
                         if case .failure = applyResult {
                             AppLogStore.shared.add(level: .error, category: "写入", message: "写入失败")
                             self?.overlayRenderer.showError(at: selection.bounds)
@@ -72,8 +78,16 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         } catch {
             print("[Hotkey] selection error: \(error)")
             AppLogStore.shared.add(level: .error, category: "选区", message: "获取失败", detail: "\(error)")
-            if let selectionError = error as? SelectionError, selectionError == .notTrusted {
-                AppState.shared.requestOpenSettings(tab: .permissions)
+            if let selectionError = error as? SelectionError {
+                switch selectionError {
+                case .notTrusted:
+                    AppState.shared.requestOpenSettings(tab: .permissions)
+                case .noSelection, .noFocusedElement:
+                    return
+                case .boundsUnavailable:
+                    let mousePoint = NSEvent.mouseLocation
+                    overlayRenderer.showError(at: CGRect(origin: mousePoint, size: .zero))
+                }
             } else {
                 let mousePoint = NSEvent.mouseLocation
                 overlayRenderer.showError(at: CGRect(origin: mousePoint, size: .zero))
