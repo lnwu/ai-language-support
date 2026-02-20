@@ -2,7 +2,7 @@ import Foundation
 import Security
 
 final class KeychainStore {
-    private let service = "LanguageOptimizer"
+    private let service = "Polly"
 
     func save(password: String, account: String) {
         guard let data = password.data(using: .utf8) else { return }

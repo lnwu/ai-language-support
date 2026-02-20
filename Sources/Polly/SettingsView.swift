@@ -85,6 +85,9 @@ struct SettingsView: View {
                 Section("API") {
                     TextField("API Base", text: $apiBase)
                     SecureField("API Key", text: $apiKey)
+                    Text("API Key 将使用 macOS Keychain 安全存储。首次保存时系统可能弹出授权弹窗。")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
                     Picker("Model", selection: $modelName) {
                         ForEach(models, id: \.self) { model in
                             Text(model).tag(model)
@@ -172,7 +175,7 @@ struct SettingsView: View {
     }
 
     private var permissionsTab: some View {
-        VStack(spacing: 24) {
+        VStack(spacing: 20) {
             Spacer()
 
             Image(systemName: isTrusted ? "checkmark.shield.fill" : "lock.shield")
@@ -191,13 +194,6 @@ struct SettingsView: View {
                 .frame(maxWidth: 320)
 
             if !isTrusted {
-                VStack(alignment: .leading, spacing: 8) {
-                    stepRow(number: 1, text: "点击下方按钮")
-                    stepRow(number: 2, text: "在系统弹窗中确认授权")
-                    stepRow(number: 3, text: "返回此页面查看状态")
-                }
-                .padding(.horizontal, 40)
-
                 Button(action: {
                     permissionManager.requestAccess()
                 }) {
@@ -206,25 +202,13 @@ struct SettingsView: View {
                 }
                 .controlSize(.large)
                 .buttonStyle(.borderedProminent)
+                .padding(.top, 16)
             }
 
             Spacer()
         }
         .frame(maxWidth: .infinity)
         .padding(20)
-    }
-
-    private func stepRow(number: Int, text: String) -> some View {
-        HStack(spacing: 10) {
-            Text("\(number)")
-                .font(.caption.bold())
-                .foregroundColor(.white)
-                .frame(width: 20, height: 20)
-                .background(Circle().fill(Color.accentColor))
-            Text(text)
-                .font(.subheadline)
-                .foregroundColor(.secondary)
-        }
     }
 
     private func loadSettingsIfNeeded() {

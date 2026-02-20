@@ -1,7 +1,7 @@
 import SwiftUI
 
 @main
-struct LanguageOptimizerApp: App {
+struct PollyApp: App {
     @NSApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate
     @ObservedObject private var appState = AppState.shared
     @Environment(\.openSettings) private var openSettings

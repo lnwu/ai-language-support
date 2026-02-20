@@ -8,8 +8,8 @@ DerivedData/
 *.xccheckout
 *.xcscmblueprint
 
-LanguageOptimizer.xcodeproj/xcuserdata/
-LanguageOptimizer.xcodeproj/project.xcworkspace/xcuserdata/
+Polly.xcodeproj/xcuserdata/
+Polly.xcodeproj/project.xcworkspace/xcuserdata/
 *.xcbkptlist
 xcuserdata/
 

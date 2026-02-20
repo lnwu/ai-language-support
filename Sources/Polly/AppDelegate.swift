@@ -34,6 +34,15 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         hotkeyManager.unregister()
     }
 
+    func applicationDidBecomeActive(_ notification: Notification) {
+        if AppState.shared.needsOpenSettings {
+            DispatchQueue.main.async {
+                AppState.shared.needsOpenSettings = false
+                AppState.shared.needsOpenSettings = true
+            }
+        }
+    }
+
     private func handleHotkey() {
         do {
             AppLogStore.shared.add(level: .info, category: "流程", message: "开始处理")
