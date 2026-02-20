@@ -1,3 +1,5 @@
+# TODO
+
 ## 待办事项
 
 - [x] 快捷键默认改为 ⇧⌘R
@@ -57,29 +59,3 @@
         }
     }
     ```
-
-### 6. 没有选中文字时按下快捷键不做任何操作
-
-- **文件**: `Sources/Polly/AppDelegate.swift` 的 `handleHotkey()` 中 `catch` 块
-- **改动**: 对 `SelectionError.noSelection` 和 `SelectionError.noFocusedElement` 静默返回（仅记录 debug 日志），不显示错误悬浮层。只有 `.notTrusted` 打开设置页，其他未知错误才显示错误指示器
-- **当前行为**: 获取选区失败时，除 `.notTrusted` 外一律在鼠标位置显示错误悬浮层
-- **目标行为**:
-  ```swift
-  } catch {
-      if let selectionError = error as? SelectionError {
-          switch selectionError {
-          case .notTrusted:
-              AppState.shared.requestOpenSettings(tab: .permissions)
-          case .noSelection, .noFocusedElement:
-              // 静默忽略，不做任何操作
-              return
-          case .boundsUnavailable:
-              let mousePoint = NSEvent.mouseLocation
-              overlayRenderer.showError(at: CGRect(origin: mousePoint, size: .zero))
-          }
-      } else {
-          let mousePoint = NSEvent.mouseLocation
-          overlayRenderer.showError(at: CGRect(origin: mousePoint, size: .zero))
-      }
-  }
-  ```
