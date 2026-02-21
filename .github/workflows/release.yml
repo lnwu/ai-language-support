@@ -6,7 +6,6 @@ on:
 
 env:
   APP_NAME: Polly
-  DISPLAY_NAME: Polly
 
 jobs:
   build-and-release:
@@ -38,26 +37,25 @@ jobs:
     - name: Ad-hoc sign app
       run: |
         cd build
-        mv ${{ env.APP_NAME }}.app ${{ env.DISPLAY_NAME }}.app
-        codesign --force --deep --sign - "${{ env.DISPLAY_NAME }}.app"
+        codesign --force --deep --sign - "${{ env.APP_NAME }}.app"
         cd ..
         
     - name: Create zip archive
       run: |
         cd build
-        zip -r ../${{ env.DISPLAY_NAME }}.zip ${{ env.DISPLAY_NAME }}.app
+        zip -r ../${{ env.APP_NAME }}.zip ${{ env.APP_NAME }}.app
         cd ..
         
     - name: Calculate sha256
       id: sha256
       run: |
-        echo "sha256=$(shasum -a 256 ${{ env.DISPLAY_NAME }}.zip | cut -d ' ' -f 1)" >> $GITHUB_OUTPUT
+        echo "sha256=$(shasum -a 256 ${{ env.APP_NAME }}.zip | cut -d ' ' -f 1)" >> $GITHUB_OUTPUT
         
     - name: Upload to Release
       env:
         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
-        gh release upload ${{ github.event.release.tag_name }} ${{ env.DISPLAY_NAME }}.zip --clobber
+        gh release upload ${{ github.event.release.tag_name }} ${{ env.APP_NAME }}.zip --clobber
         
     - name: Setup Git
       run: |
