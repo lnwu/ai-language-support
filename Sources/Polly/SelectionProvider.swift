@@ -30,33 +30,35 @@ extension SelectionError: LocalizedError {
     }
 }
 
+@MainActor
 final class SelectionProvider {
-    func getSelection() throws -> TextSelection {
+    func getSelection() async throws -> TextSelection {
         guard AXIsProcessTrusted() else { throw SelectionError.notTrusted }
 
         let systemElement = AXUIElementCreateSystemWide()
         var focused: CFTypeRef?
         let focusedResult = AXUIElementCopyAttributeValue(systemElement, kAXFocusedUIElementAttribute as CFString, &focused)
-        guard focusedResult == .success, let focusedElement = focused else {
+        guard focusedResult == .success, let focusedElement = focused, CFGetTypeID(focusedElement) == AXUIElementGetTypeID() else {
             throw SelectionError.noFocusedElement
         }
+        let axElement = focusedElement as! AXUIElement
 
-        let selectedText = try resolveSelectedText(from: focusedElement as! AXUIElement)
-        let rect = resolveSelectionBounds(from: focusedElement as! AXUIElement) ?? CGRect(origin: NSEvent.mouseLocation, size: .zero)
+        let selectedText = try await resolveSelectedText(from: axElement)
+        let rect = resolveSelectionBounds(from: axElement) ?? CGRect(origin: NSEvent.mouseLocation, size: .zero)
         let frontmost = NSWorkspace.shared.frontmostApplication
         let appPid = frontmost?.processIdentifier ?? 0
         let appBundleId = frontmost?.bundleIdentifier ?? ""
         return TextSelection(text: selectedText, bounds: rect, appPid: appPid, appBundleId: appBundleId)
     }
 
-    private func resolveSelectedText(from element: AXUIElement) throws -> String {
+    private func resolveSelectedText(from element: AXUIElement) async throws -> String {
         var selectedTextValue: CFTypeRef?
         let selectedTextResult = AXUIElementCopyAttributeValue(element, kAXSelectedTextAttribute as CFString, &selectedTextValue)
         if selectedTextResult == .success, let selectedText = selectedTextValue as? String, !selectedText.isEmpty {
             return selectedText
         }
 
-        if let copied = copySelection(), !copied.isEmpty {
+        if let copied = await copySelection(), !copied.isEmpty {
             AppLogStore.log(level: .warning, category: "选区", message: "使用复制兜底")
             return copied
         }
@@ -78,23 +80,24 @@ final class SelectionProvider {
             selectedRange,
             &boundsValue
         )
-        guard boundsResult == .success, let bounds = boundsValue else {
+        guard boundsResult == .success, let bounds = boundsValue, CFGetTypeID(bounds) == AXValueGetTypeID() else {
             return nil
         }
+        let axValue = bounds as! AXValue
 
         var rect = CGRect.zero
-        guard AXValueGetValue(bounds as! AXValue, .cgRect, &rect) else {
+        guard AXValueGetValue(axValue, .cgRect, &rect) else {
             return nil
         }
         return rect
     }
 
-    private func copySelection() -> String? {
+    private func copySelection() async -> String? {
         let pasteboard = NSPasteboard.general
         let existing = pasteboard.string(forType: .string)
         pasteboard.clearContents()
 
-        let source = CGEventSource(stateID: .combinedSessionState)
+        let source = CGEventSource(stateID: .hidSystemState)
         let cKey: CGKeyCode = 0x08
         let cmdDown = CGEvent(keyboardEventSource: source, virtualKey: cKey, keyDown: true)
         cmdDown?.flags = .maskCommand
@@ -109,7 +112,7 @@ final class SelectionProvider {
         cmdDown.post(tap: .cghidEventTap)
         cmdUp.post(tap: .cghidEventTap)
 
-        Thread.sleep(forTimeInterval: 0.05)
+        try? await Task.sleep(nanoseconds: 50_000_000)
         let copied = pasteboard.string(forType: .string)
         restorePasteboard(existing)
         return copied

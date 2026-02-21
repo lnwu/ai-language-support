@@ -38,59 +38,63 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         if AppState.shared.needsOpenSettings {
             DispatchQueue.main.async {
                 AppState.shared.needsOpenSettings = false
-                AppState.shared.needsOpenSettings = true
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                    AppState.shared.needsOpenSettings = true
+                }
             }
         }
     }
 
     private func handleHotkey() {
-        do {
-            AppLogStore.shared.add(level: .info, category: "流程", message: "开始处理")
-            let selection = try selectionProvider.getSelection()
-            AppLogStore.shared.add(level: .info, category: "选区", message: "获取成功", detail: selection.text)
-            overlayRenderer.show(at: selection.bounds)
-            llmClient.optimize(text: selection.text) { [weak self] result in
-                DispatchQueue.main.async {
-                    switch result {
-                    case .success(let optimized):
-                        AppLogStore.shared.add(level: .info, category: "LLM", message: "优化成功")
-                        let forcePasteBundleIds = ["com.tinyspeck.slackmacgap", "com.apple.Notes"]
-                        let applyResult: Result<Void, Error>?
-                        if forcePasteBundleIds.contains(selection.appBundleId) {
-                            applyResult = self?.resultApplier.forcePaste(text: optimized, targetPid: selection.appPid)
-                        } else {
-                            applyResult = self?.resultApplier.apply(text: optimized, targetPid: selection.appPid)
-                        }
-                        if case .failure = applyResult {
-                            AppLogStore.shared.add(level: .error, category: "写入", message: "写入失败")
+        Task {
+            do {
+                AppLogStore.shared.add(level: .info, category: "流程", message: "开始处理")
+                let selection = try await selectionProvider.getSelection()
+                AppLogStore.shared.add(level: .info, category: "选区", message: "获取成功", detail: selection.text)
+                overlayRenderer.show(at: selection.bounds)
+                llmClient.optimize(text: selection.text) { [weak self] result in
+                    Task { @MainActor in
+                        switch result {
+                        case .success(let optimized):
+                            AppLogStore.shared.add(level: .info, category: "LLM", message: "优化成功")
+                            let forcePasteBundleIds = ["com.tinyspeck.slackmacgap", "com.apple.Notes"]
+                            let applyResult: Result<Void, Error>?
+                            if forcePasteBundleIds.contains(selection.appBundleId) {
+                                applyResult = await self?.resultApplier.forcePaste(text: optimized, targetPid: selection.appPid)
+                            } else {
+                                applyResult = await self?.resultApplier.apply(text: optimized, targetPid: selection.appPid)
+                            }
+                            if case .failure = applyResult {
+                                AppLogStore.shared.add(level: .error, category: "写入", message: "写入失败")
+                                self?.overlayRenderer.showError(at: selection.bounds)
+                            } else {
+                                AppLogStore.shared.add(level: .info, category: "写入", message: "写入成功")
+                                self?.overlayRenderer.hide()
+                            }
+                        case .failure(let error):
+                            print("[Hotkey] LLM error: \(error)")
+                            AppLogStore.shared.add(level: .error, category: "LLM", message: "优化失败", detail: "\(error)")
                             self?.overlayRenderer.showError(at: selection.bounds)
-                        } else {
-                            AppLogStore.shared.add(level: .info, category: "写入", message: "写入成功")
-                            self?.overlayRenderer.hide()
                         }
-                    case .failure(let error):
-                        print("[Hotkey] LLM error: \(error)")
-                        AppLogStore.shared.add(level: .error, category: "LLM", message: "优化失败", detail: "\(error)")
-                        self?.overlayRenderer.showError(at: selection.bounds)
                     }
                 }
-            }
-        } catch {
-            print("[Hotkey] selection error: \(error)")
-            AppLogStore.shared.add(level: .error, category: "选区", message: "获取失败", detail: "\(error)")
-            if let selectionError = error as? SelectionError {
-                switch selectionError {
-                case .notTrusted:
-                    AppState.shared.requestOpenSettings(tab: .permissions)
-                case .noSelection, .noFocusedElement:
-                    return
-                case .boundsUnavailable:
+            } catch {
+                print("[Hotkey] selection error: \(error)")
+                AppLogStore.shared.add(level: .error, category: "选区", message: "获取失败", detail: "\(error)")
+                if let selectionError = error as? SelectionError {
+                    switch selectionError {
+                    case .notTrusted:
+                        AppState.shared.requestOpenSettings(tab: .permissions)
+                    case .noSelection, .noFocusedElement:
+                        return
+                    case .boundsUnavailable:
+                        let mousePoint = NSEvent.mouseLocation
+                        overlayRenderer.showError(at: CGRect(origin: mousePoint, size: .zero))
+                    }
+                } else {
                     let mousePoint = NSEvent.mouseLocation
                     overlayRenderer.showError(at: CGRect(origin: mousePoint, size: .zero))
                 }
-            } else {
-                let mousePoint = NSEvent.mouseLocation
-                overlayRenderer.showError(at: CGRect(origin: mousePoint, size: .zero))
             }
         }
     }

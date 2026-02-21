@@ -33,7 +33,9 @@ struct PollyApp: App {
     }
 
     private func openSettingsWindow() {
-        NSApp.activate()
-        openSettings()
+        NSApp.activate(ignoringOtherApps: true)
+        DispatchQueue.main.async {
+            openSettings()
+        }
     }
 }

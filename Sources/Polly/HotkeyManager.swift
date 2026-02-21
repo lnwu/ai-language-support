@@ -61,4 +61,8 @@ final class HotkeyManager {
     func isRegistered(_ hotkey: Hotkey) -> Bool {
         currentHotkey == hotkey && hotkeyRef != nil
     }
+
+    deinit {
+        unregister()
+    }
 }

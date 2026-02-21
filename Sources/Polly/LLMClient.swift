@@ -87,7 +87,7 @@ final class LLMClient {
                     return
                 }
                 
-                guard let http = response as? HTTPURLResponse, (200...299).contains(http.statusCode), let data else {
+                guard let http = response as? HTTPURLResponse, (200...299).contains(http.statusCode), let responseData = data else {
                     let statusCode = (response as? HTTPURLResponse)?.statusCode ?? -1
                     let body = data.flatMap { String(data: $0, encoding: .utf8) } ?? "(empty)"
                     print("[LLMClient] HTTP \(statusCode): \(body)")
@@ -103,9 +103,9 @@ final class LLMClient {
                     return
                 }
 
-                let responseString = String(data: data, encoding: .utf8) ?? ""
+                let responseString = String(data: responseData, encoding: .utf8) ?? ""
                 
-                if let content = Self.extractText(from: data) {
+                if let content = Self.extractText(from: responseData) {
                     APILogStore.shared.add(
                         requestContent: text,
                         requestBody: requestBody,
