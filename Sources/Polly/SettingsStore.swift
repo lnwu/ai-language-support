@@ -1,9 +1,39 @@
 import AppKit
 import Foundation
 
-struct AppSettings {
-    var apiBase: String
+enum APIProvider: String, CaseIterable {
+    case kimi = "Kimi (Moonshot)"
+    case openAICompatible = "OpenAI 兼容"
+
+    var defaultApiBase: String {
+        switch self {
+        case .kimi:
+            return "https://api.moonshot.cn/v1"
+        case .openAICompatible:
+            return ""
+        }
+    }
+}
+
+struct ProviderConfig {
+    let provider: APIProvider
+    var apiKey: String
     var modelName: String
+    var apiBase: String
+
+    var effectiveApiBase: String {
+        switch provider {
+        case .kimi:
+            return APIProvider.kimi.defaultApiBase
+        case .openAICompatible:
+            return apiBase
+        }
+    }
+}
+
+struct AppSettings {
+    var currentProvider: APIProvider
+    var currentConfig: ProviderConfig
     var hotkey: Hotkey
 }
 
@@ -15,33 +45,58 @@ final class SettingsStore {
     private let keychain = KeychainStore()
 
     private enum Keys {
-        static let apiBase = "apiBase"
-        static let modelName = "modelName"
-        static let apiKeyAccount = "openaiApiKey"
+        static let currentProvider = "currentProvider"
+
+        // Provider-specific keys
+        static func apiKeyKey(for provider: APIProvider) -> String {
+            "\(provider.rawValue)_apiKey"
+        }
+        static func modelNameKey(for provider: APIProvider) -> String {
+            "\(provider.rawValue)_modelName"
+        }
+        static func apiBaseKey(for provider: APIProvider) -> String {
+            "\(provider.rawValue)_apiBase"
+        }
+
+        // Hotkey keys
         static let hotkeyKeyCode = "hotkeyKeyCode"
         static let hotkeyModifiers = "hotkeyModifiers"
         static let hotkeyDisplay = "hotkeyDisplay"
     }
 
     func load() -> AppSettings {
-        let apiBase = defaults.string(forKey: Keys.apiBase) ?? ""
-        let modelName = defaults.string(forKey: Keys.modelName) ?? ""
+        let providerRaw = defaults.string(forKey: Keys.currentProvider) ?? APIProvider.kimi.rawValue
+        let currentProvider = APIProvider(rawValue: providerRaw) ?? .kimi
+        let currentConfig = loadConfig(for: currentProvider)
         let hotkey = loadHotkey()
-        return AppSettings(apiBase: apiBase, modelName: modelName, hotkey: hotkey)
+        return AppSettings(currentProvider: currentProvider, currentConfig: currentConfig, hotkey: hotkey)
     }
 
-    func save(settings: AppSettings, apiKey: String?) {
-        defaults.set(settings.apiBase, forKey: Keys.apiBase)
-        defaults.set(settings.modelName, forKey: Keys.modelName)
-        saveHotkey(settings.hotkey)
+    func loadConfig(for provider: APIProvider) -> ProviderConfig {
+        let apiKey = keychain.readPassword(account: Keys.apiKeyKey(for: provider)) ?? ""
+        let modelName = defaults.string(forKey: Keys.modelNameKey(for: provider)) ?? ""
+        let apiBase = defaults.string(forKey: Keys.apiBaseKey(for: provider)) ?? ""
+        return ProviderConfig(provider: provider, apiKey: apiKey, modelName: modelName, apiBase: apiBase)
+    }
 
-        if let apiKey, !apiKey.isEmpty {
-            keychain.save(password: apiKey, account: Keys.apiKeyAccount)
+    func save(config: ProviderConfig) {
+        defaults.set(config.provider.rawValue, forKey: Keys.currentProvider)
+
+        if !config.apiKey.isEmpty {
+            keychain.save(password: config.apiKey, account: Keys.apiKeyKey(for: config.provider))
+        }
+        defaults.set(config.modelName, forKey: Keys.modelNameKey(for: config.provider))
+
+        // 仅自定义 provider 存储 apiBase
+        if config.provider == .openAICompatible {
+            defaults.set(config.apiBase, forKey: Keys.apiBaseKey(for: config.provider))
         }
     }
 
-    func apiKey() -> String? {
-        keychain.readPassword(account: Keys.apiKeyAccount)
+    func saveHotkey(_ hotkey: Hotkey) {
+        defaults.set(Int(hotkey.keyCode), forKey: Keys.hotkeyKeyCode)
+        defaults.set(hotkey.modifiers.rawValue, forKey: Keys.hotkeyModifiers)
+        defaults.set(hotkey.display, forKey: Keys.hotkeyDisplay)
     }
 
     func loadHotkey() -> Hotkey {
@@ -52,11 +107,5 @@ final class SettingsStore {
             return Hotkey(keyCode: UInt32(keyCode), modifiers: modifiers, display: display)
         }
         return Hotkey.default()
-    }
-
-    func saveHotkey(_ hotkey: Hotkey) {
-        defaults.set(Int(hotkey.keyCode), forKey: Keys.hotkeyKeyCode)
-        defaults.set(hotkey.modifiers.rawValue, forKey: Keys.hotkeyModifiers)
-        defaults.set(hotkey.display, forKey: Keys.hotkeyDisplay)
     }
 }

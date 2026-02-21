@@ -84,10 +84,12 @@ final class OverlayRenderer {
         window?.setFrame(frame, display: true)
         window?.orderFront(nil)
 
-        let interval: TimeInterval = style == .loading ? 3.0 : 2.0
-        hideTimer = Timer.scheduledTimer(withTimeInterval: interval, repeats: false) { [weak self] _ in
-            Task { @MainActor in
-                self?.hide()
+        // Loading 不自动隐藏，由调用方控制
+        if style == .error {
+            hideTimer = Timer.scheduledTimer(withTimeInterval: 2.0, repeats: false) { [weak self] _ in
+                Task { @MainActor in
+                    self?.hide()
+                }
             }
         }
     }

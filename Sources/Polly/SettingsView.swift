@@ -3,6 +3,7 @@ import Foundation
 
 @MainActor
 struct SettingsView: View {
+    @State private var apiProvider: APIProvider = .openAICompatible
     @State private var apiBase: String = ""
     @State private var modelName: String = ""
     @State private var apiKey: String = ""
@@ -14,11 +15,12 @@ struct SettingsView: View {
     @AppStorage("selectedSettingsTab") private var selectedTab: SettingsTab = .permissions
     @State private var isTrusted = false
     @State private var permissionTimer: Timer?
-    @State private var testText: String = ""
+    @State private var testText: String = "how you are"
     @State private var hotkey: Hotkey = Hotkey.default()
     @State private var isRecordingHotkey = false
     @State private var hotkeyError: String = ""
     @State private var hotkeyMonitor: Any?
+    @State private var showSavedToast = false
 
     private let permissionManager = PermissionManager()
 
@@ -83,7 +85,26 @@ struct SettingsView: View {
         VStack(alignment: .leading, spacing: 16) {
             Form {
                 Section("API") {
-                    TextField("API Base", text: $apiBase)
+                    Picker("Provider", selection: $apiProvider) {
+                        ForEach(APIProvider.allCases, id: \.self) { provider in
+                            Text(provider.rawValue).tag(provider)
+                        }
+                    }
+                    .onChange(of: apiProvider) { _, newProvider in
+                        // 加载新 provider 的配置（不保存当前）
+                        let config = SettingsStore.shared.loadConfig(for: newProvider)
+                        apiKey = config.apiKey
+                        modelName = config.modelName
+                        apiBase = config.apiBase
+                        models = []
+                        lastFetchedKey = ""
+                        scheduleModelsFetchIfNeeded()
+                    }
+
+                    if apiProvider == .openAICompatible {
+                        TextField("API Base", text: $apiBase)
+                    }
+
                     SecureField("API Key", text: $apiKey)
                     Text("API Key 将使用 macOS Keychain 安全存储。首次保存时系统可能弹出授权弹窗。")
                         .font(.caption)
@@ -110,6 +131,11 @@ struct SettingsView: View {
 
             HStack {
                 Spacer()
+                if showSavedToast {
+                    Text("已保存")
+                        .foregroundColor(.green)
+                        .transition(.opacity)
+                }
                 Button("Save") {
                     saveSettings()
                 }
@@ -121,7 +147,7 @@ struct SettingsView: View {
 
     private var testingTab: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("在下方输入文本，选中后按 \(hotkey.display) 测试优化功能")
+            Text("选中下方文字或输入新内容，按 \(hotkey.display) 优化")
                 .font(.subheadline)
                 .foregroundColor(.secondary)
 
@@ -214,21 +240,31 @@ struct SettingsView: View {
     private func loadSettingsIfNeeded() {
         guard !loaded else { return }
         let settings = SettingsStore.shared.load()
-        apiBase = settings.apiBase
-        modelName = settings.modelName
+        apiProvider = settings.currentProvider
+        apiKey = settings.currentConfig.apiKey
+        modelName = settings.currentConfig.modelName
+        apiBase = settings.currentConfig.apiBase
         hotkey = settings.hotkey
-        apiKey = SettingsStore.shared.apiKey() ?? ""
         loaded = true
         scheduleModelsFetchIfNeeded()
     }
 
     private func saveSettings() {
-        let settings = AppSettings(apiBase: apiBase, modelName: modelName, hotkey: hotkey)
-        SettingsStore.shared.save(settings: settings, apiKey: apiKey)
+        let config = ProviderConfig(provider: apiProvider, apiKey: apiKey, modelName: modelName, apiBase: apiBase)
+        SettingsStore.shared.save(config: config)
+        withAnimation {
+            showSavedToast = true
+        }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+            withAnimation {
+                showSavedToast = false
+            }
+        }
     }
 
     private var isFormValid: Bool {
-        !apiBase.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty &&
+        let apiBaseValid = apiProvider == .kimi || !apiBase.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+        return apiBaseValid &&
         !apiKey.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty &&
         !modelName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
     }
@@ -237,9 +273,13 @@ struct SettingsView: View {
         if isFormValid {
             return nil
         }
-        if apiBase.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ||
-            apiKey.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-            return "请填写 API Base 和 API Key"
+        let needsApiBase = apiProvider == .openAICompatible && apiBase.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+        if needsApiBase || apiKey.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+            if needsApiBase {
+                return "请填写 API Base 和 API Key"
+            } else {
+                return "请填写 API Key"
+            }
         }
         if modelName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
             return "请先获取模型列表"
@@ -249,18 +289,19 @@ struct SettingsView: View {
 
     private func scheduleModelsFetchIfNeeded() {
         guard loaded else { return }
-        let base = apiBase.trimmingCharacters(in: .whitespacesAndNewlines)
+        let config = ProviderConfig(provider: apiProvider, apiKey: apiKey, modelName: modelName, apiBase: apiBase)
+        let effectiveBase = config.effectiveApiBase
         let key = apiKey.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !base.isEmpty, !key.isEmpty else {
+        guard !effectiveBase.isEmpty, !key.isEmpty else {
             models = []
             modelName = ""
             errorText = ""
             return
         }
-        let fingerprint = "\(base)|\(key)"
+        let fingerprint = "\(apiProvider.rawValue)|\(effectiveBase)|\(key)"
         guard fingerprint != lastFetchedKey else { return }
         lastFetchedKey = fingerprint
-        fetchModels(apiBase: base, apiKey: key)
+        fetchModels(apiBase: effectiveBase, apiKey: key)
     }
 
     private func fetchModels(apiBase: String, apiKey: String) {
@@ -281,14 +322,21 @@ struct SettingsView: View {
         let task = URLSession.shared.dataTask(with: request) { data, response, error in
             Task { @MainActor in
                 isLoadingModels = false
-                if error != nil {
-                    errorText = "获取模型列表失败"
+                if let error = error {
+                    errorText = "获取模型列表失败: \(error.localizedDescription)"
                     return
                 }
-                guard let http = response as? HTTPURLResponse,
-                      (200...299).contains(http.statusCode),
-                      let data else {
-                    errorText = "获取模型列表失败"
+                guard let http = response as? HTTPURLResponse else {
+                    errorText = "获取模型列表失败: 无效的响应"
+                    return
+                }
+                guard (200...299).contains(http.statusCode) else {
+                    let body = data.flatMap { String(data: $0, encoding: .utf8) } ?? "(empty)"
+                    errorText = "获取模型列表失败 (HTTP \(http.statusCode)): \(body)"
+                    return
+                }
+                guard let data = data else {
+                    errorText = "获取模型列表失败: 无数据"
                     return
                 }
 
@@ -582,6 +630,11 @@ struct LogEntryRow: View {
                 Image(systemName: entry.isSuccess ? "checkmark.circle.fill" : "xmark.circle.fill")
                     .foregroundColor(entry.isSuccess ? .green : .red)
                     .font(.caption)
+                
+                let seconds = Double(entry.responseTimeMs) / 1000.0
+                Text(String(format: "%.1fs", seconds))
+                    .font(.caption)
+                    .foregroundColor(.secondary)
                 
                 Text(previewText)
                     .font(.body)

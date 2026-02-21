@@ -8,6 +8,7 @@ struct APILogEntry: Identifiable, Codable {
     let responseContent: String?
     let isSuccess: Bool
     let errorMessage: String?
+    let responseTimeMs: Int
 }
 
 @MainActor
@@ -24,7 +25,7 @@ final class APILogStore {
         loadEntries()
     }
     
-    func add(requestContent: String, requestBody: String, responseContent: String?, isSuccess: Bool, errorMessage: String? = nil) {
+    func add(requestContent: String, requestBody: String, responseContent: String?, isSuccess: Bool, errorMessage: String? = nil, responseTimeMs: Int = 0) {
         let entry = APILogEntry(
             id: UUID(),
             timestamp: Date(),
@@ -32,7 +33,8 @@ final class APILogStore {
             requestBody: requestBody,
             responseContent: responseContent,
             isSuccess: isSuccess,
-            errorMessage: errorMessage
+            errorMessage: errorMessage,
+            responseTimeMs: responseTimeMs
         )
         
         entries.insert(entry, at: 0)
@@ -42,6 +44,7 @@ final class APILogStore {
         }
         
         saveEntries()
+        NotificationCenter.default.post(name: NSNotification.Name("APILogUpdated"), object: nil)
     }
     
     func clearAll() {
