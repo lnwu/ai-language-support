@@ -38,4 +38,4 @@ Polly 是一个 macOS 菜单栏应用，用于优化任意应用选中文本，�
 ## 说明
 
 - 使用 macOS Accessibility API 获取选区与写回。
-- `LLMClient` 默认使用 Responses API。
+- `LLMClient` 默认使用 `/chat/completions` API。
