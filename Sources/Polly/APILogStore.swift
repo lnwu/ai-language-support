@@ -37,11 +37,11 @@ final class APILogStore {
             entries.removeLast()
         }
         
-        NotificationCenter.default.post(name: NSNotification.Name("APILogUpdated"), object: nil)
+        NotificationCenter.default.post(name: .apiLogUpdated, object: nil)
     }
     
     func clearAll() {
         entries.removeAll()
-        NotificationCenter.default.post(name: NSNotification.Name("APILogUpdated"), object: nil)
+        NotificationCenter.default.post(name: .apiLogUpdated, object: nil)
     }
 }

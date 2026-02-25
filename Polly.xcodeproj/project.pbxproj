@@ -17,6 +17,7 @@
 		27E0C30AB2E51BDA9A87E61E /* SelectionProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D842BDB4459EED8726B3FB1 /* SelectionProvider.swift */; };
 		2B56A99CC12E0EC98BF45786 /* ErrorIndicatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9821245AB8509767B1B238AB /* ErrorIndicatorView.swift */; };
 		2FF9DD3C69F8A46C3E481BF8 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 953212533E62BAB5BC64FFCC /* SettingsView.swift */; };
+		DD1111111111111111111111 /* LogsTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD2222222222222222222222 /* LogsTabView.swift */; };
 		546EA4D406B71002C803D4E2 /* LoadingDotsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C22194C0EC64950E23C4DC79 /* LoadingDotsView.swift */; };
 		6665026AA33E4E8A000E718E /* SettingsTab.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A734FB77B26F1969DCBFC71 /* SettingsTab.swift */; };
 		6C70F678C16ED8F2184FC00A /* KeychainStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0848EE0848D44A29DB4AA0C /* KeychainStore.swift */; };
@@ -48,6 +49,7 @@
 		C22194C0EC64950E23C4DC79 /* LoadingDotsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoadingDotsView.swift; sourceTree = "<group>"; };
 		C30620A7F6007B8744A9BBD4 /* OverlayRenderer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OverlayRenderer.swift; sourceTree = "<group>"; };
 		C7024FBCF7F7ECAF9247D0D1 /* LLMClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LLMClient.swift; sourceTree = "<group>"; };
+		DD2222222222222222222222 /* LogsTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogsTabView.swift; sourceTree = "<group>"; };
 		E19D6CD08D1DB1E7067C6DAB /* PollyApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PollyApp.swift; sourceTree = "<group>"; };
 		FDFBB1345F977DA58E5AF956 /* Polly.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Polly.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -67,6 +69,7 @@
 				C0848EE0848D44A29DB4AA0C /* KeychainStore.swift */,
 				E19D6CD08D1DB1E7067C6DAB /* PollyApp.swift */,
 				C7024FBCF7F7ECAF9247D0D1 /* LLMClient.swift */,
+				DD2222222222222222222222 /* LogsTabView.swift */,
 				C22194C0EC64950E23C4DC79 /* LoadingDotsView.swift */,
 				C30620A7F6007B8744A9BBD4 /* OverlayRenderer.swift */,
 				72335A2DFF4EAAE4D09B4092 /* PermissionManager.swift */,
@@ -182,6 +185,7 @@ path = Sources/Polly;
 				8057CC82DC03D1246483B053 /* SettingsStore.swift in Sources */,
 				6665026AA33E4E8A000E718E /* SettingsTab.swift in Sources */,
 				2FF9DD3C69F8A46C3E481BF8 /* SettingsView.swift in Sources */,
+				DD1111111111111111111111 /* LogsTabView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -1,5 +1,10 @@
 import Foundation
 
+extension NSNotification.Name {
+    static let appLogUpdated = NSNotification.Name("AppLogUpdated")
+    static let apiLogUpdated = NSNotification.Name("APILogUpdated")
+}
+
 enum AppLogLevel: String, Codable {
     case info
     case warning
@@ -37,7 +42,7 @@ final class AppLogStore {
         if entries.count > maxEntries {
             entries.removeLast()
         }
-        NotificationCenter.default.post(name: NSNotification.Name("AppLogUpdated"), object: nil)
+        NotificationCenter.default.post(name: .appLogUpdated, object: nil)
     }
 
     nonisolated static func log(level: AppLogLevel, category: String, message: String, detail: String? = nil) {
@@ -48,6 +53,6 @@ final class AppLogStore {
 
     func clearAll() {
         entries.removeAll()
-        NotificationCenter.default.post(name: NSNotification.Name("AppLogUpdated"), object: nil)
+        NotificationCenter.default.post(name: .appLogUpdated, object: nil)
     }
 }

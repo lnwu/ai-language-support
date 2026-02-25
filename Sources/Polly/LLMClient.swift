@@ -22,9 +22,46 @@ extension LLMError: LocalizedError {
     }
 }
 
+private struct ChatRequest: Encodable {
+    let model: String
+    let messages: [ChatMessage]
+    let temperature: Double
+}
+
+private struct ChatMessage: Encodable {
+    let role: String
+    let content: String
+}
+
+private struct ChatResponse: Decodable {
+    let choices: [Choice]
+
+    struct Choice: Decodable {
+        let message: ResponseMessage
+    }
+
+    struct ResponseMessage: Decodable {
+        let content: String
+    }
+}
+
+struct ModelsResponse: Decodable {
+    let data: [Model]
+
+    struct Model: Decodable {
+        let id: String
+    }
+}
+
 @MainActor
 final class LLMClient {
     private let systemPrompt = "Fix grammar and spelling errors, make it more concise. Return ONLY the optimized text without any explanation, notes, or formatting."
+
+    private let encoder: JSONEncoder = {
+        let encoder = JSONEncoder()
+        encoder.outputFormatting = .prettyPrinted
+        return encoder
+    }()
 
     func optimize(text: String) async throws -> String {
         let settings = SettingsStore.shared.load()
@@ -42,21 +79,16 @@ final class LLMClient {
         request.addValue("application/json", forHTTPHeaderField: "Content-Type")
         request.addValue("Bearer \(config.apiKey)", forHTTPHeaderField: "Authorization")
 
-        var payload: [String: Any] = [
-            "model": config.modelName,
-            "messages": [
-                ["role": "system", "content": systemPrompt],
-                ["role": "user", "content": text]
-            ]
-        ]
+        let chatRequest = ChatRequest(
+            model: config.modelName,
+            messages: [
+                ChatMessage(role: "system", content: systemPrompt),
+                ChatMessage(role: "user", content: text)
+            ],
+            temperature: config.provider == .kimi ? 1.0 : 0.2
+        )
 
-        if config.provider == .kimi {
-            payload["temperature"] = 1
-        } else {
-            payload["temperature"] = 0.2
-        }
-
-        let bodyData = try JSONSerialization.data(withJSONObject: payload, options: .prettyPrinted)
+        let bodyData = try encoder.encode(chatRequest)
         request.httpBody = bodyData
         let requestBody = String(data: bodyData, encoding: .utf8) ?? ""
 
@@ -94,12 +126,26 @@ final class LLMClient {
             throw LLMError.requestFailed(statusCode: statusCode, body: body)
         }
 
-        guard let content = Self.extractText(from: data) else {
+        guard let chatResponse = try? JSONDecoder().decode(ChatResponse.self, from: data),
+              let first = chatResponse.choices.first else {
             let responseString = String(data: data, encoding: .utf8) ?? ""
             APILogStore.shared.add(
                 requestContent: text,
                 requestBody: requestBody,
                 responseContent: responseString,
+                isSuccess: false,
+                errorMessage: "无法从响应中提取文本",
+                responseTimeMs: responseTimeMs
+            )
+            throw LLMError.invalidResponse
+        }
+
+        let content = first.message.content.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !content.isEmpty else {
+            APILogStore.shared.add(
+                requestContent: text,
+                requestBody: requestBody,
+                responseContent: "",
                 isSuccess: false,
                 errorMessage: "无法从响应中提取文本",
                 responseTimeMs: responseTimeMs
@@ -115,18 +161,5 @@ final class LLMClient {
             responseTimeMs: responseTimeMs
         )
         return content
-    }
-
-    private static func extractText(from data: Data) -> String? {
-        guard let object = try? JSONSerialization.jsonObject(with: data, options: []),
-              let dict = object as? [String: Any],
-              let choices = dict["choices"] as? [[String: Any]],
-              let first = choices.first,
-              let message = first["message"] as? [String: Any],
-              let content = message["content"] as? String else {
-            return nil
-        }
-        let trimmed = content.trimmingCharacters(in: .whitespacesAndNewlines)
-        return trimmed.isEmpty ? nil : trimmed
     }
 }
