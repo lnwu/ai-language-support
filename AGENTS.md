@@ -36,6 +36,8 @@ Polly 是一个 macOS 菜单栏应用，用于优化任意应用选中文本，�
 - 写回处理：`Sources/Polly/ResultApplier.swift`
 - 配置存储：`Sources/Polly/SettingsStore.swift`、`Sources/Polly/KeychainStore.swift`
 - 日志存储：`Sources/Polly/AppLogStore.swift`、`Sources/Polly/APILogStore.swift`
+- 国际化管理：`Sources/Polly/LocalizationManager.swift`
+- 本地化资源：`Sources/Polly/Resources/en.lproj/`、`Sources/Polly/Resources/zh-Hans.lproj/`
 
 ## 说明
 
@@ -43,3 +45,4 @@ Polly 是一个 macOS 菜单栏应用，用于优化任意应用选中文本，�
 - `LLMClient` 使用 async/await 调用 `/chat/completions` API。
 - 日志仅存在于内存中，不做持久化，应用重启后自动清空。
 - `ResultApplier` 内部维护强制粘贴的应用列表，调用方传入 `appBundleId` 即可，无需关心写回策略。
+- 应用已支持国际化 (i18n)，根据系统语言自动在中文和英文之间切换。所有用户可见文本都已本地化。
