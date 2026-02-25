@@ -3,7 +3,7 @@ import Foundation
 final class LocalizationManager {
     static let shared = LocalizationManager()
 
-    private var bundle: Bundle = .main
+    fileprivate var bundle: Bundle = .main
 
     private init() {
         setupLanguage()
@@ -40,6 +40,10 @@ extension String {
     }
 
     func localized(_ args: CVarArg...) -> String {
-        LocalizationManager.shared.localized(self, arguments: args)
+        let format = LocalizationManager.shared.bundle.localizedString(forKey: self, value: nil, table: nil)
+        if args.isEmpty {
+            return format
+        }
+        return String(format: format, arguments: args)
     }
 }
