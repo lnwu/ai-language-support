@@ -9,10 +9,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private let llmClient = LLMClient()
     private let resultApplier = ResultApplier()
     private let hotkeyManager = HotkeyManager()
+    private var isProcessing = false
 
     func applicationDidFinishLaunching(_ notification: Notification) {
-        APILogStore.shared.clearAll()
-        AppLogStore.clear()
         if !permissionManager.isTrusted() {
             AppState.shared.requestOpenSettings(tab: .permissions)
         }
@@ -46,47 +45,43 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     private func handleHotkey() {
+        guard !isProcessing else {
+            AppLogStore.shared.add(level: .warning, category: "流程", message: "上次处理尚未完成，跳过")
+            return
+        }
+        isProcessing = true
         Task {
+            defer { isProcessing = false }
             do {
                 AppLogStore.shared.add(level: .info, category: "流程", message: "开始处理")
+
                 let selection = try await selectionProvider.getSelection()
                 AppLogStore.shared.add(level: .info, category: "选区", message: "获取成功", detail: selection.text)
+
                 if let bounds = selection.bounds {
                     overlayRenderer.show(at: bounds)
                 }
-                llmClient.optimize(text: selection.text) { [weak self] result in
-                    Task { @MainActor in
-                        switch result {
-                        case .success(let optimized):
-                            AppLogStore.shared.add(level: .info, category: "LLM", message: "优化成功")
-                            let forcePasteBundleIds = ["com.tinyspeck.slackmacgap", "com.apple.Notes", "com.google.Chrome"]
-                            let applyResult: Result<Void, Error>?
-                            if forcePasteBundleIds.contains(selection.appBundleId) {
-                                applyResult = await self?.resultApplier.forcePaste(text: optimized, targetPid: selection.appPid)
-                            } else {
-                                applyResult = await self?.resultApplier.apply(text: optimized, targetPid: selection.appPid)
-                            }
-                            if case .failure = applyResult {
-                                AppLogStore.shared.add(level: .error, category: "写入", message: "写入失败")
-                                if let bounds = selection.bounds {
-                                    self?.overlayRenderer.showError(at: bounds)
-                                }
-                            } else {
-                                AppLogStore.shared.add(level: .info, category: "写入", message: "写入成功")
-                                self?.overlayRenderer.hide()
-                            }
-                        case .failure(let error):
-                            print("[Hotkey] LLM error: \(error)")
-                            AppLogStore.shared.add(level: .error, category: "LLM", message: "优化失败", detail: "\(error)")
-                            if let bounds = selection.bounds {
-                                self?.overlayRenderer.showError(at: bounds)
-                            }
-                        }
+
+                let optimized = try await llmClient.optimize(text: selection.text)
+                AppLogStore.shared.add(level: .info, category: "LLM", message: "优化成功")
+
+                let applyResult = await resultApplier.apply(
+                    text: optimized,
+                    targetPid: selection.appPid,
+                    appBundleId: selection.appBundleId
+                )
+
+                if case .failure = applyResult {
+                    AppLogStore.shared.add(level: .error, category: "写入", message: "写入失败")
+                    if let bounds = selection.bounds {
+                        overlayRenderer.showError(at: bounds)
                     }
+                } else {
+                    AppLogStore.shared.add(level: .info, category: "写入", message: "写入成功")
+                    overlayRenderer.hide()
                 }
             } catch {
-                print("[Hotkey] selection error: \(error)")
-                AppLogStore.shared.add(level: .error, category: "选区", message: "获取失败", detail: "\(error)")
+                AppLogStore.shared.add(level: .error, category: "流程", message: "处理失败", detail: "\(error)")
                 if let selectionError = error as? SelectionError {
                     switch selectionError {
                     case .notTrusted:

@@ -1,6 +1,7 @@
 import AppKit
 import Carbon
 
+@MainActor
 final class HotkeyManager {
     var onHotkey: (() -> Void)?
     private var hotkeyRef: EventHotKeyRef?
@@ -17,7 +18,9 @@ final class HotkeyManager {
         let status = InstallEventHandler(eventTarget, { _, _, userData in
             guard let userData else { return noErr }
             let manager = Unmanaged<HotkeyManager>.fromOpaque(userData).takeUnretainedValue()
-            manager.onHotkey?()
+            DispatchQueue.main.async {
+                manager.onHotkey?()
+            }
             return noErr
         }, 1, &eventType, UnsafeMutableRawPointer(Unmanaged.passUnretained(self).toOpaque()), &handlerRef)
 
@@ -62,7 +65,4 @@ final class HotkeyManager {
         currentHotkey == hotkey && hotkeyRef != nil
     }
 
-    deinit {
-        unregister()
-    }
 }

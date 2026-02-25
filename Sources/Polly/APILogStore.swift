@@ -15,15 +15,9 @@ struct APILogEntry: Identifiable, Codable {
 final class APILogStore {
     static let shared = APILogStore()
     
-    private let defaults = UserDefaults.standard
-    private let storageKey = "apiLogs"
     private let maxEntries = 50
     
     private(set) var entries: [APILogEntry] = []
-    
-    init() {
-        loadEntries()
-    }
     
     func add(requestContent: String, requestBody: String, responseContent: String?, isSuccess: Bool, errorMessage: String? = nil, responseTimeMs: Int = 0) {
         let entry = APILogEntry(
@@ -43,26 +37,11 @@ final class APILogStore {
             entries.removeLast()
         }
         
-        saveEntries()
         NotificationCenter.default.post(name: NSNotification.Name("APILogUpdated"), object: nil)
     }
     
     func clearAll() {
         entries.removeAll()
-        defaults.removeObject(forKey: storageKey)
-    }
-    
-    private func saveEntries() {
-        if let data = try? JSONEncoder().encode(entries) {
-            defaults.set(data, forKey: storageKey)
-        }
-    }
-    
-    private func loadEntries() {
-        guard let data = defaults.data(forKey: storageKey),
-              let loaded = try? JSONDecoder().decode([APILogEntry].self, from: data) else {
-            return
-        }
-        entries = loaded
+        NotificationCenter.default.post(name: NSNotification.Name("APILogUpdated"), object: nil)
     }
 }

@@ -64,8 +64,6 @@ struct SettingsView: View {
         }
         .onDisappear {
             stopRecordingHotkey()
-        }
-        .onDisappear {
             stopPermissionPolling()
         }
         .onChange(of: selectedTab) { _, newValue in
@@ -301,10 +299,10 @@ struct SettingsView: View {
         let fingerprint = "\(apiProvider.rawValue)|\(effectiveBase)|\(key)"
         guard fingerprint != lastFetchedKey else { return }
         lastFetchedKey = fingerprint
-        fetchModels(apiBase: effectiveBase, apiKey: key)
+        Task { await fetchModels(apiBase: effectiveBase, apiKey: key) }
     }
 
-    private func fetchModels(apiBase: String, apiKey: String) {
+    private func fetchModels(apiBase: String, apiKey: String) async {
         isLoadingModels = true
         errorText = ""
         models = []
@@ -319,46 +317,41 @@ struct SettingsView: View {
         request.httpMethod = "GET"
         request.addValue("Bearer \(apiKey)", forHTTPHeaderField: "Authorization")
 
-        let task = URLSession.shared.dataTask(with: request) { data, response, error in
-            Task { @MainActor in
-                isLoadingModels = false
-                if let error = error {
-                    errorText = "获取模型列表失败: \(error.localizedDescription)"
-                    return
-                }
-                guard let http = response as? HTTPURLResponse else {
-                    errorText = "获取模型列表失败: 无效的响应"
-                    return
-                }
-                guard (200...299).contains(http.statusCode) else {
-                    let body = data.flatMap { String(data: $0, encoding: .utf8) } ?? "(empty)"
-                    errorText = "获取模型列表失败 (HTTP \(http.statusCode)): \(body)"
-                    return
-                }
-                guard let data = data else {
-                    errorText = "获取模型列表失败: 无数据"
-                    return
-                }
-
-                guard let object = try? JSONSerialization.jsonObject(with: data, options: []),
-                      let dict = object as? [String: Any],
-                      let items = dict["data"] as? [[String: Any]] else {
-                    errorText = "模型列表解析失败"
-                    return
-                }
-
-                let names = items.compactMap { $0["id"] as? String }
-                models = names
-                if let first = names.first {
-                    if modelName.isEmpty || !names.contains(modelName) {
-                        modelName = first
-                    }
-                } else {
-                    errorText = "模型列表为空"
-                }
-            }
+        let data: Data
+        let response: URLResponse
+        do {
+            (data, response) = try await URLSession.shared.data(for: request)
+        } catch {
+            isLoadingModels = false
+            errorText = "获取模型列表失败: \(error.localizedDescription)"
+            return
         }
-        task.resume()
+
+        isLoadingModels = false
+
+        guard let http = response as? HTTPURLResponse, (200...299).contains(http.statusCode) else {
+            let statusCode = (response as? HTTPURLResponse)?.statusCode ?? -1
+            let body = String(data: data, encoding: .utf8) ?? "(empty)"
+            errorText = "获取模型列表失败 (HTTP \(statusCode)): \(body)"
+            return
+        }
+
+        guard let object = try? JSONSerialization.jsonObject(with: data, options: []),
+              let dict = object as? [String: Any],
+              let items = dict["data"] as? [[String: Any]] else {
+            errorText = "模型列表解析失败"
+            return
+        }
+
+        let names = items.compactMap { $0["id"] as? String }
+        models = names
+        if let first = names.first {
+            if modelName.isEmpty || !names.contains(modelName) {
+                modelName = first
+            }
+        } else {
+            errorText = "模型列表为空"
+        }
     }
 
     private func refreshPermissionStatus() {

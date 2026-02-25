@@ -8,13 +8,27 @@ enum ResultApplierError: Error {
 
 @MainActor
 final class ResultApplier {
-    func apply(text: String, targetPid: pid_t? = nil) async -> Result<Void, Error> {
+    private static let forcePasteBundleIds: Set<String> = [
+        "com.tinyspeck.slackmacgap",
+        "com.apple.Notes",
+        "com.google.Chrome",
+    ]
+
+    private static let pasteDelay: UInt64 = 200_000_000
+    private static let slowAppPasteDelay: UInt64 = 500_000_000
+
+    func apply(text: String, targetPid: pid_t? = nil, appBundleId: String = "") async -> Result<Void, Error> {
+        let isSlowApp = Self.forcePasteBundleIds.contains(appBundleId)
+        if isSlowApp {
+            return await copyAndPaste(text: text, targetPid: targetPid, appBundleId: appBundleId, force: true)
+        }
+
         let systemElement = AXUIElementCreateSystemWide()
         var focused: CFTypeRef?
         let focusedResult = AXUIElementCopyAttributeValue(systemElement, kAXFocusedUIElementAttribute as CFString, &focused)
         guard focusedResult == .success, let focusedElement = focused, CFGetTypeID(focusedElement) == AXUIElementGetTypeID() else {
             AppLogStore.log(level: .warning, category: "写入", message: "未获取焦点，走粘贴兜底")
-            return await copyAndPaste(text: text, targetPid: targetPid)
+            return await copyAndPaste(text: text, targetPid: targetPid, appBundleId: appBundleId)
         }
 
         let axElement = focusedElement as! AXUIElement
@@ -23,14 +37,10 @@ final class ResultApplier {
             return .success(())
         }
         AppLogStore.log(level: .warning, category: "写入", message: "AX 写入失败，走粘贴兜底")
-        return await copyAndPaste(text: text, targetPid: targetPid)
+        return await copyAndPaste(text: text, targetPid: targetPid, appBundleId: appBundleId)
     }
 
-    func forcePaste(text: String, targetPid: pid_t?) async -> Result<Void, Error> {
-        return await copyAndPaste(text: text, targetPid: targetPid, force: true)
-    }
-
-    private func copyAndPaste(text: String, targetPid: pid_t?, force: Bool = false) async -> Result<Void, Error> {
+    private func copyAndPaste(text: String, targetPid: pid_t?, appBundleId: String = "", force: Bool = false) async -> Result<Void, Error> {
         let pasteboard = NSPasteboard.general
         let existing = pasteboard.string(forType: .string)
         pasteboard.clearContents()
@@ -56,7 +66,8 @@ final class ResultApplier {
         cmdDown.post(tap: .cghidEventTap)
         cmdUp.post(tap: .cghidEventTap)
 
-        try? await Task.sleep(nanoseconds: 300_000_000)
+        let delay = Self.forcePasteBundleIds.contains(appBundleId) ? Self.slowAppPasteDelay : Self.pasteDelay
+        try? await Task.sleep(nanoseconds: delay)
         restorePasteboard(existing)
         AppLogStore.log(level: .info, category: "写入", message: force ? "强制粘贴成功" : "粘贴成功")
         return .success(())

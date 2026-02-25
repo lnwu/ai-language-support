@@ -3,7 +3,7 @@ import Foundation
 enum LLMError: Error {
     case invalidUrl
     case missingApiKey
-    case requestFailed
+    case requestFailed(statusCode: Int, body: String)
     case invalidResponse
 }
 
@@ -14,8 +14,8 @@ extension LLMError: LocalizedError {
             return "API 地址无效"
         case .missingApiKey:
             return "未配置 API Key"
-        case .requestFailed:
-            return "请求失败，请检查网络"
+        case .requestFailed(let statusCode, let body):
+            return "请求失败 (HTTP \(statusCode)): \(body)"
         case .invalidResponse:
             return "响应解析失败"
         }
@@ -26,17 +26,15 @@ extension LLMError: LocalizedError {
 final class LLMClient {
     private let systemPrompt = "Fix grammar and spelling errors, make it more concise. Return ONLY the optimized text without any explanation, notes, or formatting."
 
-    func optimize(text: String, completion: @escaping @Sendable (Result<String, Error>) -> Void) {
+    func optimize(text: String) async throws -> String {
         let settings = SettingsStore.shared.load()
         let config = settings.currentConfig
         guard !config.apiKey.isEmpty else {
-            completion(.failure(LLMError.missingApiKey))
-            return
+            throw LLMError.missingApiKey
         }
         let effectiveBase = config.effectiveApiBase
         guard let url = URL(string: "\(effectiveBase)/chat/completions") else {
-            completion(.failure(LLMError.invalidUrl))
-            return
+            throw LLMError.invalidUrl
         }
 
         var request = URLRequest(url: url)
@@ -52,82 +50,71 @@ final class LLMClient {
             ]
         ]
 
-        // Kimi 只支持 temperature = 1
         if config.provider == .kimi {
             payload["temperature"] = 1
         } else {
             payload["temperature"] = 0.2
         }
 
-        let requestBody: String
-        do {
-            let bodyData = try JSONSerialization.data(withJSONObject: payload, options: .prettyPrinted)
-            request.httpBody = bodyData
-            requestBody = String(data: bodyData, encoding: .utf8) ?? ""
-        } catch {
-            completion(.failure(error))
-            return
-        }
+        let bodyData = try JSONSerialization.data(withJSONObject: payload, options: .prettyPrinted)
+        request.httpBody = bodyData
+        let requestBody = String(data: bodyData, encoding: .utf8) ?? ""
 
         let startTime = Date()
-        let task = URLSession.shared.dataTask(with: request) { data, response, error in
-            Task { @MainActor in
-                let responseTimeMs = Int(Date().timeIntervalSince(startTime) * 1000)
-                if let error = error {
-                    print("[LLMClient] request error: \(error)")
-                    APILogStore.shared.add(
-                        requestContent: text,
-                        requestBody: requestBody,
-                        responseContent: nil,
-                        isSuccess: false,
-                        errorMessage: error.localizedDescription,
-                        responseTimeMs: responseTimeMs
-                    )
-                    completion(.failure(LLMError.requestFailed))
-                    return
-                }
-                
-                guard let http = response as? HTTPURLResponse, (200...299).contains(http.statusCode), let responseData = data else {
-                    let statusCode = (response as? HTTPURLResponse)?.statusCode ?? -1
-                    let body = data.flatMap { String(data: $0, encoding: .utf8) } ?? "(empty)"
-                    print("[LLMClient] HTTP \(statusCode): \(body)")
-                    APILogStore.shared.add(
-                        requestContent: text,
-                        requestBody: requestBody,
-                        responseContent: nil,
-                        isSuccess: false,
-                        errorMessage: "HTTP \(statusCode): \(body)",
-                        responseTimeMs: responseTimeMs
-                    )
-                    completion(.failure(LLMError.invalidResponse))
-                    return
-                }
-
-                let responseString = String(data: responseData, encoding: .utf8) ?? ""
-                
-                if let content = Self.extractText(from: responseData) {
-                    APILogStore.shared.add(
-                        requestContent: text,
-                        requestBody: requestBody,
-                        responseContent: content,
-                        isSuccess: true,
-                        responseTimeMs: responseTimeMs
-                    )
-                    completion(.success(content))
-                } else {
-                    APILogStore.shared.add(
-                        requestContent: text,
-                        requestBody: requestBody,
-                        responseContent: responseString,
-                        isSuccess: false,
-                        errorMessage: "无法从响应中提取文本",
-                        responseTimeMs: responseTimeMs
-                    )
-                    completion(.failure(LLMError.invalidResponse))
-                }
-            }
+        let data: Data
+        let response: URLResponse
+        do {
+            (data, response) = try await URLSession.shared.data(for: request)
+        } catch {
+            let responseTimeMs = Int(Date().timeIntervalSince(startTime) * 1000)
+            APILogStore.shared.add(
+                requestContent: text,
+                requestBody: requestBody,
+                responseContent: nil,
+                isSuccess: false,
+                errorMessage: error.localizedDescription,
+                responseTimeMs: responseTimeMs
+            )
+            throw LLMError.requestFailed(statusCode: -1, body: error.localizedDescription)
         }
-        task.resume()
+
+        let responseTimeMs = Int(Date().timeIntervalSince(startTime) * 1000)
+
+        guard let http = response as? HTTPURLResponse, (200...299).contains(http.statusCode) else {
+            let statusCode = (response as? HTTPURLResponse)?.statusCode ?? -1
+            let body = String(data: data, encoding: .utf8) ?? "(empty)"
+            APILogStore.shared.add(
+                requestContent: text,
+                requestBody: requestBody,
+                responseContent: nil,
+                isSuccess: false,
+                errorMessage: "HTTP \(statusCode): \(body)",
+                responseTimeMs: responseTimeMs
+            )
+            throw LLMError.requestFailed(statusCode: statusCode, body: body)
+        }
+
+        guard let content = Self.extractText(from: data) else {
+            let responseString = String(data: data, encoding: .utf8) ?? ""
+            APILogStore.shared.add(
+                requestContent: text,
+                requestBody: requestBody,
+                responseContent: responseString,
+                isSuccess: false,
+                errorMessage: "无法从响应中提取文本",
+                responseTimeMs: responseTimeMs
+            )
+            throw LLMError.invalidResponse
+        }
+
+        APILogStore.shared.add(
+            requestContent: text,
+            requestBody: requestBody,
+            responseContent: content,
+            isSuccess: true,
+            responseTimeMs: responseTimeMs
+        )
+        return content
     }
 
     private static func extractText(from data: Data) -> String? {
