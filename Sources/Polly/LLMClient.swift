@@ -11,13 +11,13 @@ extension LLMError: LocalizedError {
     var errorDescription: String? {
         switch self {
         case .invalidUrl:
-            return "API 地址无效"
+            return "error.llm.invalid_url".localized
         case .missingApiKey:
-            return "未配置 API Key"
+            return "error.llm.missing_api_key".localized
         case .requestFailed(let statusCode, let body):
-            return "请求失败 (HTTP \(statusCode)): \(body)"
+            return "error.llm.request_failed".localized(statusCode, body)
         case .invalidResponse:
-            return "响应解析失败"
+            return "error.llm.invalid_response".localized
         }
     }
 }
@@ -134,7 +134,7 @@ final class LLMClient {
                 requestBody: requestBody,
                 responseContent: responseString,
                 isSuccess: false,
-                errorMessage: "无法从响应中提取文本",
+                errorMessage: "error.llm.no_content".localized,
                 responseTimeMs: responseTimeMs
             )
             throw LLMError.invalidResponse
@@ -147,7 +147,7 @@ final class LLMClient {
                 requestBody: requestBody,
                 responseContent: "",
                 isSuccess: false,
-                errorMessage: "无法从响应中提取文本",
+                errorMessage: "error.llm.no_content".localized,
                 responseTimeMs: responseTimeMs
             )
             throw LLMError.invalidResponse

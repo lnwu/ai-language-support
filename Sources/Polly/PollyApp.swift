@@ -8,12 +8,12 @@ struct PollyApp: App {
 
     var body: some Scene {
         MenuBarExtra {
-            Button("设置…") {
+            Button("menu.settings".localized) {
                 openSettingsWindow()
             }
             .keyboardShortcut(",")
             Divider()
-            Button("退出") {
+            Button("menu.quit".localized) {
                 NSApp.terminate(nil)
             }
             .keyboardShortcut("q")

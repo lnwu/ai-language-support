@@ -27,31 +27,31 @@ struct SettingsView: View {
         TabView(selection: $selectedTab) {
             permissionsTab
                 .tabItem {
-                    Label("权限", systemImage: "hand.raised.fill")
+                    Label("tab.permissions".localized, systemImage: "hand.raised.fill")
                 }
                 .tag(SettingsTab.permissions)
 
             generalTab
                 .tabItem {
-                    Label("通用", systemImage: "gearshape")
+                    Label("tab.general".localized, systemImage: "gearshape")
                 }
                 .tag(SettingsTab.general)
 
             testingTab
                 .tabItem {
-                    Label("测试", systemImage: "play.circle")
+                    Label("tab.testing".localized, systemImage: "play.circle")
                 }
                 .tag(SettingsTab.testing)
 
             logsTab
                 .tabItem {
-                    Label("日志", systemImage: "doc.text")
+                    Label("tab.logs".localized, systemImage: "doc.text")
                 }
                 .tag(SettingsTab.logs)
 
             hotkeyTab
                 .tabItem {
-                    Label("快捷键", systemImage: "keyboard")
+                    Label("tab.hotkey".localized, systemImage: "keyboard")
                 }
                 .tag(SettingsTab.hotkey)
         }
@@ -81,8 +81,8 @@ struct SettingsView: View {
     private var generalTab: some View {
         VStack(alignment: .leading, spacing: 16) {
             Form {
-                Section("API") {
-                    Picker("Provider", selection: $apiProvider) {
+                Section("section.api".localized) {
+                    Picker("field.provider".localized, selection: $apiProvider) {
                         ForEach(APIProvider.allCases, id: \.self) { provider in
                             Text(provider.rawValue).tag(provider)
                         }
@@ -98,14 +98,14 @@ struct SettingsView: View {
                     }
 
                     if apiProvider == .openAICompatible {
-                        TextField("API Base", text: $apiBase)
+                        TextField("field.api_base".localized, text: $apiBase)
                     }
 
-                    SecureField("API Key", text: $apiKey)
-                    Text("API Key 将使用 macOS Keychain 安全存储。首次保存时系统可能弹出授权弹窗。")
+                    SecureField("field.api_key".localized, text: $apiKey)
+                    Text("info.keychain".localized)
                         .font(.caption)
                         .foregroundColor(.secondary)
-                    Picker("Model", selection: $modelName) {
+                    Picker("field.model".localized, selection: $modelName) {
                         ForEach(models, id: \.self) { model in
                             Text(model).tag(model)
                         }
@@ -113,7 +113,7 @@ struct SettingsView: View {
                     .disabled(models.isEmpty)
                 }
                 if isLoadingModels {
-                    Text("正在加载模型列表…")
+                    Text("status.loading_models".localized)
                 }
                 if let hint = formHint {
                     Text(hint)
@@ -128,11 +128,11 @@ struct SettingsView: View {
             HStack {
                 Spacer()
                 if showSavedToast {
-                    Text("已保存")
+                    Text("status.saved".localized)
                         .foregroundColor(.green)
                         .transition(.opacity)
                 }
-                Button("Save") {
+                Button("button.save".localized) {
                     saveSettings()
                 }
                 .disabled(!isFormValid)
@@ -143,7 +143,7 @@ struct SettingsView: View {
 
     private var testingTab: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("选中下方文字或输入新内容，按 \(hotkey.display) 优化")
+            Text("testing.instruction".localized(hotkey.display))
                 .font(.subheadline)
                 .foregroundColor(.secondary)
 
@@ -160,7 +160,7 @@ struct SettingsView: View {
 
     private var hotkeyTab: some View {
         VStack(alignment: .leading, spacing: 16) {
-            Text("当前快捷键")
+            Text("hotkey.current".localized)
                 .font(.headline)
 
             Text(hotkey.display)
@@ -172,7 +172,7 @@ struct SettingsView: View {
             }
 
             HStack(spacing: 12) {
-                Button(isRecordingHotkey ? "按下新的快捷键…" : "录制快捷键") {
+                Button(isRecordingHotkey ? "hotkey.button.recording".localized : "hotkey.button.record".localized) {
                     if isRecordingHotkey {
                         stopRecordingHotkey()
                     } else {
@@ -181,12 +181,12 @@ struct SettingsView: View {
                 }
                 .buttonStyle(.borderedProminent)
 
-                Button("恢复默认") {
+                Button("hotkey.button.reset".localized) {
                     applyHotkey(Hotkey.default())
                 }
             }
 
-            Text("录制时按下任意组合键，建议包含 ⌘/⌃/⌥ 中至少一个。")
+            Text("hotkey.instruction".localized)
                 .font(.subheadline)
                 .foregroundColor(.secondary)
 
@@ -204,12 +204,12 @@ struct SettingsView: View {
                 .font(.system(size: 48))
                 .foregroundColor(isTrusted ? .green : .secondary)
 
-            Text(isTrusted ? "辅助功能权限已开启" : "需要辅助功能权限")
+            Text(isTrusted ? "permission.granted".localized : "permission.required".localized)
                 .font(.headline)
 
             Text(isTrusted
-                 ? "可以使用快捷键读取并优化任意应用选中文本。"
-                 : "开启后即可通过快捷键读取并优化任意应用选中文本。")
+                 ? "permission.description.granted".localized
+                 : "permission.description.required".localized)
                 .font(.subheadline)
                 .foregroundColor(.secondary)
                 .multilineTextAlignment(.center)
@@ -219,7 +219,7 @@ struct SettingsView: View {
                 Button(action: {
                     permissionManager.requestAccess()
                 }) {
-                    Text("请求权限")
+                    Text("permission.button.request".localized)
                         .frame(maxWidth: 200)
                 }
                 .controlSize(.large)
@@ -272,13 +272,13 @@ struct SettingsView: View {
         let needsApiBase = apiProvider == .openAICompatible && apiBase.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
         if needsApiBase || apiKey.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
             if needsApiBase {
-                return "请填写 API Base 和 API Key"
+                return "hint.fill_api_base_key".localized
             } else {
-                return "请填写 API Key"
+                return "hint.fill_api_key".localized
             }
         }
         if modelName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-            return "请先获取模型列表"
+            return "hint.fetch_models_first".localized
         }
         return nil
     }
@@ -307,7 +307,7 @@ struct SettingsView: View {
 
         guard let url = URL(string: "\(apiBase)/models") else {
             isLoadingModels = false
-            errorText = "API 地址无效"
+            errorText = "error.api_invalid".localized
             return
         }
 
@@ -321,7 +321,7 @@ struct SettingsView: View {
             (data, response) = try await URLSession.shared.data(for: request)
         } catch {
             isLoadingModels = false
-            errorText = "获取模型列表失败: \(error.localizedDescription)"
+            errorText = "error.fetch_models_failed".localized(error.localizedDescription)
             return
         }
 
@@ -330,12 +330,12 @@ struct SettingsView: View {
         guard let http = response as? HTTPURLResponse, (200...299).contains(http.statusCode) else {
             let statusCode = (response as? HTTPURLResponse)?.statusCode ?? -1
             let body = String(data: data, encoding: .utf8) ?? "(empty)"
-            errorText = "获取模型列表失败 (HTTP \(statusCode)): \(body)"
+            errorText = "error.fetch_models_http".localized(statusCode, body)
             return
         }
 
         guard let modelsResponse = try? JSONDecoder().decode(ModelsResponse.self, from: data) else {
-            errorText = "模型列表解析失败"
+            errorText = "error.parse_models_failed".localized
             return
         }
 
@@ -346,7 +346,7 @@ struct SettingsView: View {
                 modelName = first
             }
         } else {
-            errorText = "模型列表为空"
+            errorText = "error.models_empty".localized
         }
     }
 
@@ -371,7 +371,7 @@ struct SettingsView: View {
             }
             let modifiers = event.modifierFlags.intersection(.deviceIndependentFlagsMask)
             if modifiers.isDisjoint(with: [.command, .control, .option, .shift]) {
-                hotkeyError = "请至少包含一个修饰键"
+                hotkeyError = "hotkey.error.modifier_required".localized
                 return nil
             }
             let candidate = Hotkey.build(keyCode: event.keyCode, modifiers: modifiers, displayKey: event.charactersIgnoringModifiers)
@@ -399,7 +399,7 @@ struct SettingsView: View {
             hotkeyError = ""
         } else {
             _ = manager?.register(previous)
-            hotkeyError = "快捷键已被占用"
+            hotkeyError = "hotkey.error.occupied".localized
         }
     }
 
