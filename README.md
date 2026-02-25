@@ -1,3 +1,3 @@
 # ai-language-support
 
-Mac 语言优化器
+AI 语言优化器
