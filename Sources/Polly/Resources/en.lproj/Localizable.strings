@@ -1,0 +1,92 @@
+"menu.settings" = "Settings…";
+"menu.quit" = "Quit";
+
+"tab.permissions" = "Permissions";
+"tab.general" = "General";
+"tab.testing" = "Testing";
+"tab.logs" = "Logs";
+"tab.hotkey" = "Hotkey";
+
+"section.api" = "API";
+"field.provider" = "Provider";
+"field.api_base" = "API Base";
+"field.api_key" = "API Key";
+"field.model" = "Model";
+"info.keychain" = "API Key will be securely stored in macOS Keychain. Authorization dialog may appear on first save.";
+"status.loading_models" = "Loading model list…";
+"button.save" = "Save";
+"status.saved" = "Saved";
+
+"error.api_invalid" = "Invalid API address";
+"error.fetch_models_failed" = "Failed to fetch models: %@";
+"error.fetch_models_http" = "Failed to fetch models (HTTP %d): %@";
+"error.parse_models_failed" = "Failed to parse model list";
+"error.models_empty" = "Model list is empty";
+
+"hint.fill_api_base_key" = "Please fill in API Base and API Key";
+"hint.fill_api_key" = "Please fill in API Key";
+"hint.fetch_models_first" = "Please fetch model list first";
+
+"testing.instruction" = "Select text below or enter new content, press %@ to optimize";
+
+"logs.type.app" = "App Logs";
+"logs.type.api" = "API Logs";
+"logs.header.app" = "App Logs";
+"logs.header.api" = "API Call Logs";
+"logs.no_logs" = "No logs";
+"logs.button.clear" = "Clear Logs";
+"logs.toggle.errors_only" = "Errors Only";
+"logs.section.level" = "Level";
+"logs.section.detail" = "Detail";
+"logs.section.original" = "Original Text";
+"logs.section.request" = "Request Body";
+"logs.section.response" = "Response";
+"logs.section.error" = "Error";
+
+"hotkey.current" = "Current Hotkey";
+"hotkey.button.record" = "Record Hotkey";
+"hotkey.button.recording" = "Press new hotkey…";
+"hotkey.button.reset" = "Reset to Default";
+"hotkey.instruction" = "Press any key combination while recording, recommend including at least one of ⌘/⌃/⌥.";
+"hotkey.error.modifier_required" = "Please include at least one modifier key";
+"hotkey.error.occupied" = "Hotkey is already in use";
+
+"permission.granted" = "Accessibility Permission Granted";
+"permission.required" = "Accessibility Permission Required";
+"permission.description.granted" = "You can use hotkey to read and optimize selected text from any application.";
+"permission.description.required" = "Once enabled, you can use hotkey to read and optimize selected text from any application.";
+"permission.button.request" = "Request Permission";
+
+"error.llm.invalid_url" = "Invalid API address";
+"error.llm.missing_api_key" = "API Key not configured";
+"error.llm.request_failed" = "Request failed (HTTP %d): %@";
+"error.llm.invalid_response" = "Failed to parse response";
+"error.llm.no_content" = "Unable to extract text from response";
+
+"error.selection.not_trusted" = "Accessibility permission not granted";
+"error.selection.no_focused_element" = "No editable text field detected";
+"error.selection.no_selection" = "No selected text detected";
+"error.selection.bounds_unavailable" = "Unable to locate selection";
+
+"log.category.hotkey" = "Hotkey";
+"log.category.process" = "Process";
+"log.category.selection" = "Selection";
+"log.category.llm" = "LLM";
+"log.category.write" = "Write";
+
+"log.hotkey.triggered" = "Hotkey triggered";
+"log.hotkey.registered" = "Registered successfully";
+"log.hotkey.register_failed" = "Registration failed";
+"log.process.started" = "Started processing";
+"log.process.in_progress" = "Previous processing not finished, skipped";
+"log.process.failed" = "Processing failed";
+"log.selection.success" = "Retrieved successfully";
+"log.selection.copy_fallback" = "Using copy fallback";
+"log.llm.success" = "Optimized successfully";
+"log.write.success" = "Written successfully";
+"log.write.failed" = "Write failed";
+"log.write.no_focus_fallback" = "No focus acquired, using paste fallback";
+"log.write.ax_failed_fallback" = "AX write failed, using paste fallback";
+"log.write.paste_failed" = "Paste failed";
+"log.write.paste_success" = "Pasted successfully";
+"log.write.force_paste_success" = "Force pasted successfully";

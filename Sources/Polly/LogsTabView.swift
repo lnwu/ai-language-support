@@ -17,9 +17,9 @@ struct LogsTabView: View {
     var body: some View {
         VStack(spacing: 12) {
             HStack {
-                Picker("日志", selection: $selectedLogType) {
-                    Text("应用日志").tag(LogType.app)
-                    Text("API 日志").tag(LogType.api)
+                Picker("logs.type.app".localized, selection: $selectedLogType) {
+                    Text("logs.type.app".localized).tag(LogType.app)
+                    Text("logs.type.api".localized).tag(LogType.api)
                 }
                 .pickerStyle(.segmented)
 
@@ -27,19 +27,19 @@ struct LogsTabView: View {
             }
 
             HStack {
-                Text(selectedLogType == .app ? "应用日志" : "API 调用日志")
+                Text(selectedLogType == .app ? "logs.header.app".localized : "logs.header.api".localized)
                     .font(.headline)
                 Spacer()
                 if selectedLogType == .app {
-                    Toggle("仅错误", isOn: $appOnlyErrors)
+                    Toggle("logs.toggle.errors_only".localized, isOn: $appOnlyErrors)
                         .toggleStyle(.switch)
-                    Button("清空日志") {
+                    Button("logs.button.clear".localized) {
                         AppLogStore.shared.clearAll()
                         appEntries = AppLogStore.shared.entries
                     }
                     .disabled(appEntries.isEmpty)
                 } else {
-                    Button("清空日志") {
+                    Button("logs.button.clear".localized) {
                         APILogStore.shared.clearAll()
                         entries = APILogStore.shared.entries
                     }
@@ -76,7 +76,7 @@ struct LogsTabView: View {
                 let filtered = appOnlyErrors ? appEntries.filter { $0.level == .error } : appEntries
                 if filtered.isEmpty {
                     Spacer()
-                    Text("暂无日志")
+                    Text("logs.no_logs".localized)
                         .foregroundColor(.secondary)
                     Spacer()
                 } else {
@@ -97,7 +97,7 @@ struct LogsTabView: View {
             } else {
                 if entries.isEmpty {
                     Spacer()
-                    Text("暂无日志")
+                    Text("logs.no_logs".localized)
                         .foregroundColor(.secondary)
                     Spacer()
                 } else {
@@ -154,9 +154,9 @@ struct AppLogEntryRow: View {
 
             if isExpanded {
                 VStack(alignment: .leading, spacing: 12) {
-                    LogSection(title: "级别", content: entry.level.rawValue)
+                    LogSection(title: "logs.section.level".localized, content: entry.level.rawValue)
                     if let detail = entry.detail {
-                        LogSection(title: "详情", content: detail)
+                        LogSection(title: "logs.section.detail".localized, content: detail)
                     }
                 }
                 .padding(.leading, 24)
@@ -216,15 +216,15 @@ struct LogEntryRow: View {
 
             if isExpanded {
                 VStack(alignment: .leading, spacing: 12) {
-                    LogSection(title: "原始文本", content: entry.requestContent)
-                    LogSection(title: "请求体", content: entry.requestBody, isJSON: true)
+                    LogSection(title: "logs.section.original".localized, content: entry.requestContent)
+                    LogSection(title: "logs.section.request".localized, content: entry.requestBody, isJSON: true)
 
                     if let response = entry.responseContent {
-                        LogSection(title: "响应", content: response)
+                        LogSection(title: "logs.section.response".localized, content: response)
                     }
 
                     if let error = entry.errorMessage {
-                        LogSection(title: "错误", content: error, isError: true)
+                        LogSection(title: "logs.section.error".localized, content: error, isError: true)
                     }
                 }
                 .padding(.leading, 24)

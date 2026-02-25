@@ -19,13 +19,13 @@ extension SelectionError: LocalizedError {
     var errorDescription: String? {
         switch self {
         case .notTrusted:
-            return "未获得辅助功能权限"
+            return "error.selection.not_trusted".localized
         case .noFocusedElement:
-            return "未检测到可编辑输入框"
+            return "error.selection.no_focused_element".localized
         case .noSelection:
-            return "未检测到选中文本"
+            return "error.selection.no_selection".localized
         case .boundsUnavailable:
-            return "无法定位选区"
+            return "error.selection.bounds_unavailable".localized
         }
     }
 }
@@ -59,7 +59,7 @@ final class SelectionProvider {
         }
 
         if let copied = await copySelection(), !copied.isEmpty {
-            AppLogStore.log(level: .warning, category: "选区", message: "使用复制兜底")
+            AppLogStore.log(level: .warning, category: "log.category.selection".localized, message: "log.selection.copy_fallback".localized)
             return copied
         }
 

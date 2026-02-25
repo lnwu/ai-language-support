@@ -1,0 +1,92 @@
+"menu.settings" = "设置…";
+"menu.quit" = "退出";
+
+"tab.permissions" = "权限";
+"tab.general" = "通用";
+"tab.testing" = "测试";
+"tab.logs" = "日志";
+"tab.hotkey" = "快捷键";
+
+"section.api" = "API";
+"field.provider" = "Provider";
+"field.api_base" = "API Base";
+"field.api_key" = "API Key";
+"field.model" = "Model";
+"info.keychain" = "API Key 将使用 macOS Keychain 安全存储。首次保存时系统可能弹出授权弹窗。";
+"status.loading_models" = "正在加载模型列表…";
+"button.save" = "Save";
+"status.saved" = "已保存";
+
+"error.api_invalid" = "API 地址无效";
+"error.fetch_models_failed" = "获取模型列表失败: %@";
+"error.fetch_models_http" = "获取模型列表失败 (HTTP %d): %@";
+"error.parse_models_failed" = "模型列表解析失败";
+"error.models_empty" = "模型列表为空";
+
+"hint.fill_api_base_key" = "请填写 API Base 和 API Key";
+"hint.fill_api_key" = "请填写 API Key";
+"hint.fetch_models_first" = "请先获取模型列表";
+
+"testing.instruction" = "选中下方文字或输入新内容，按 %@ 优化";
+
+"logs.type.app" = "应用日志";
+"logs.type.api" = "API 日志";
+"logs.header.app" = "应用日志";
+"logs.header.api" = "API 调用日志";
+"logs.no_logs" = "暂无日志";
+"logs.button.clear" = "清空日志";
+"logs.toggle.errors_only" = "仅错误";
+"logs.section.level" = "级别";
+"logs.section.detail" = "详情";
+"logs.section.original" = "原始文本";
+"logs.section.request" = "请求体";
+"logs.section.response" = "响应";
+"logs.section.error" = "错误";
+
+"hotkey.current" = "当前快捷键";
+"hotkey.button.record" = "录制快捷键";
+"hotkey.button.recording" = "按下新的快捷键…";
+"hotkey.button.reset" = "恢复默认";
+"hotkey.instruction" = "录制时按下任意组合键，建议包含 ⌘/⌃/⌥ 中至少一个。";
+"hotkey.error.modifier_required" = "请至少包含一个修饰键";
+"hotkey.error.occupied" = "快捷键已被占用";
+
+"permission.granted" = "辅助功能权限已开启";
+"permission.required" = "需要辅助功能权限";
+"permission.description.granted" = "可以使用快捷键读取并优化任意应用选中文本。";
+"permission.description.required" = "开启后即可通过快捷键读取并优化任意应用选中文本。";
+"permission.button.request" = "请求权限";
+
+"error.llm.invalid_url" = "API 地址无效";
+"error.llm.missing_api_key" = "未配置 API Key";
+"error.llm.request_failed" = "请求失败 (HTTP %d): %@";
+"error.llm.invalid_response" = "响应解析失败";
+"error.llm.no_content" = "无法从响应中提取文本";
+
+"error.selection.not_trusted" = "未获得辅助功能权限";
+"error.selection.no_focused_element" = "未检测到可编辑输入框";
+"error.selection.no_selection" = "未检测到选中文本";
+"error.selection.bounds_unavailable" = "无法定位选区";
+
+"log.category.hotkey" = "快捷键";
+"log.category.process" = "流程";
+"log.category.selection" = "选区";
+"log.category.llm" = "LLM";
+"log.category.write" = "写入";
+
+"log.hotkey.triggered" = "触发快捷键";
+"log.hotkey.registered" = "注册成功";
+"log.hotkey.register_failed" = "注册失败";
+"log.process.started" = "开始处理";
+"log.process.in_progress" = "上次处理尚未完成，跳过";
+"log.process.failed" = "处理失败";
+"log.selection.success" = "获取成功";
+"log.selection.copy_fallback" = "使用复制兜底";
+"log.llm.success" = "优化成功";
+"log.write.success" = "写入成功";
+"log.write.failed" = "写入失败";
+"log.write.no_focus_fallback" = "未获取焦点，走粘贴兜底";
+"log.write.ax_failed_fallback" = "AX 写入失败，走粘贴兜底";
+"log.write.paste_failed" = "粘贴失败";
+"log.write.paste_success" = "粘贴成功";
+"log.write.force_paste_success" = "强制粘贴成功";

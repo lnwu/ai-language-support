@@ -11,6 +11,7 @@
 		0C1111111111111111111111 /* AppLogStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C2222222222222222222222 /* AppLogStore.swift */; };
 		0A1111111111111111111111 /* Hotkey.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A2222222222222222222222 /* Hotkey.swift */; };
 		0B1111111111111111111111 /* HotkeyManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B2222222222222222222222 /* HotkeyManager.swift */; };
+		EE1111111111111111111111 /* LocalizationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE2222222222222222222222 /* LocalizationManager.swift */; };
 		AA00112233445566778899BB /* AppState.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA00112233445566778899AA /* AppState.swift */; };
 		AA00112233445566778899CC /* APILogStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA00112233445566778899DD /* APILogStore.swift */; };
 		1C7B0A3746EA97742A9F4ED9 /* LLMClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7024FBCF7F7ECAF9247D0D1 /* LLMClient.swift */; };
@@ -24,6 +25,7 @@
 		6F08352AB9F0BAB9946711E6 /* OverlayRenderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = C30620A7F6007B8744A9BBD4 /* OverlayRenderer.swift */; };
 		8057CC82DC03D1246483B053 /* SettingsStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CDF069A8784596D279FC6BC /* SettingsStore.swift */; };
 		A1B2C3D4E5F6A7B8C9D0E1F2 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F1E2D3C4B5A69788A9B0C1D2 /* Assets.xcassets */; };
+		FF1111111111111111111111 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = FF2222222222222222222222 /* Localizable.strings */; };
 		C37C84C2319580F8E92FA193 /* PermissionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 72335A2DFF4EAAE4D09B4092 /* PermissionManager.swift */; };
 		D6EAB555E24364406AEFFF10 /* ResultApplier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36D5A86F91D7F509EF66F886 /* ResultApplier.swift */; };
 		F9FF3062AA2548CD76428046 /* PollyApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = E19D6CD08D1DB1E7067C6DAB /* PollyApp.swift */; };
@@ -33,6 +35,7 @@
 		0C2222222222222222222222 /* AppLogStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppLogStore.swift; sourceTree = "<group>"; };
 		0A2222222222222222222222 /* Hotkey.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Hotkey.swift; sourceTree = "<group>"; };
 		0B2222222222222222222222 /* HotkeyManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HotkeyManager.swift; sourceTree = "<group>"; };
+		EE2222222222222222222222 /* LocalizationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalizationManager.swift; sourceTree = "<group>"; };
 		F1E2D3C4B5A69788A9B0C1D2 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		1909A109DA163FB0BDF15837 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		AA00112233445566778899AA /* AppState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppState.swift; sourceTree = "<group>"; };
@@ -50,6 +53,8 @@
 		C30620A7F6007B8744A9BBD4 /* OverlayRenderer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OverlayRenderer.swift; sourceTree = "<group>"; };
 		C7024FBCF7F7ECAF9247D0D1 /* LLMClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LLMClient.swift; sourceTree = "<group>"; };
 		DD2222222222222222222222 /* LogsTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogsTabView.swift; sourceTree = "<group>"; };
+		FF3333333333333333333333 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
+		FF4444444444444444444444 /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = "zh-Hans.lproj/Localizable.strings"; sourceTree = "<group>"; };
 		E19D6CD08D1DB1E7067C6DAB /* PollyApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PollyApp.swift; sourceTree = "<group>"; };
 		FDFBB1345F977DA58E5AF956 /* Polly.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Polly.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -71,6 +76,7 @@
 				C7024FBCF7F7ECAF9247D0D1 /* LLMClient.swift */,
 				DD2222222222222222222222 /* LogsTabView.swift */,
 				C22194C0EC64950E23C4DC79 /* LoadingDotsView.swift */,
+				EE2222222222222222222222 /* LocalizationManager.swift */,
 				C30620A7F6007B8744A9BBD4 /* OverlayRenderer.swift */,
 				72335A2DFF4EAAE4D09B4092 /* PermissionManager.swift */,
 				36D5A86F91D7F509EF66F886 /* ResultApplier.swift */,
@@ -87,6 +93,7 @@ path = Sources/Polly;
 			isa = PBXGroup;
 			children = (
 				F1E2D3C4B5A69788A9B0C1D2 /* Assets.xcassets */,
+				FF2222222222222222222222 /* Localizable.strings */,
 			);
 			path = Resources;
 			sourceTree = "<group>";
@@ -150,6 +157,7 @@ path = Sources/Polly;
 			hasScannedForEncodings = 0;
 			knownRegions = (
 				en,
+				"zh-Hans",
 			);
 			mainGroup = 8AE5A536F599FB0CA6F57B23;
 			minimizedProjectReferenceProxies = 1;
@@ -171,6 +179,7 @@ path = Sources/Polly;
 				0C1111111111111111111111 /* AppLogStore.swift in Sources */,
 				0A1111111111111111111111 /* Hotkey.swift in Sources */,
 				0B1111111111111111111111 /* HotkeyManager.swift in Sources */,
+				EE1111111111111111111111 /* LocalizationManager.swift in Sources */,
 				AA00112233445566778899BB /* AppState.swift in Sources */,
 				AA00112233445566778899CC /* APILogStore.swift in Sources */,
 				2B56A99CC12E0EC98BF45786 /* ErrorIndicatorView.swift in Sources */,
@@ -197,10 +206,24 @@ path = Sources/Polly;
 			buildActionMask = 2147483647;
 			files = (
 				A1B2C3D4E5F6A7B8C9D0E1F2 /* Assets.xcassets in Resources */,
+				FF1111111111111111111111 /* Localizable.strings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXVariantGroup section */
+		FF2222222222222222222222 /* Localizable.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				FF3333333333333333333333 /* en */,
+				FF4444444444444444444444 /* zh-Hans */,
+			);
+			name = Localizable.strings;
+			path = Sources/Polly/Resources;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
 		652A4AA5D0BAC62D47B5C756 /* Release */ = {

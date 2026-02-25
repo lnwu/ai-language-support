@@ -27,7 +27,7 @@ final class ResultApplier {
         var focused: CFTypeRef?
         let focusedResult = AXUIElementCopyAttributeValue(systemElement, kAXFocusedUIElementAttribute as CFString, &focused)
         guard focusedResult == .success, let focusedElement = focused, CFGetTypeID(focusedElement) == AXUIElementGetTypeID() else {
-            AppLogStore.log(level: .warning, category: "写入", message: "未获取焦点，走粘贴兜底")
+            AppLogStore.log(level: .warning, category: "log.category.write".localized, message: "log.write.no_focus_fallback".localized)
             return await copyAndPaste(text: text, targetPid: targetPid, appBundleId: appBundleId)
         }
 
@@ -36,7 +36,7 @@ final class ResultApplier {
         if setResult == .success {
             return .success(())
         }
-        AppLogStore.log(level: .warning, category: "写入", message: "AX 写入失败，走粘贴兜底")
+        AppLogStore.log(level: .warning, category: "log.category.write".localized, message: "log.write.ax_failed_fallback".localized)
         return await copyAndPaste(text: text, targetPid: targetPid, appBundleId: appBundleId)
     }
 
@@ -59,7 +59,7 @@ final class ResultApplier {
 
         guard let cmdDown, let cmdUp else {
             restorePasteboard(existing)
-            AppLogStore.log(level: .error, category: "写入", message: "粘贴失败")
+            AppLogStore.log(level: .error, category: "log.category.write".localized, message: "log.write.paste_failed".localized)
             return .failure(ResultApplierError.pasteFailed)
         }
 
@@ -69,7 +69,8 @@ final class ResultApplier {
         let delay = Self.forcePasteBundleIds.contains(appBundleId) ? Self.slowAppPasteDelay : Self.pasteDelay
         try? await Task.sleep(nanoseconds: delay)
         restorePasteboard(existing)
-        AppLogStore.log(level: .info, category: "写入", message: force ? "强制粘贴成功" : "粘贴成功")
+        let message = force ? "log.write.force_paste_success".localized : "log.write.paste_success".localized
+        AppLogStore.log(level: .info, category: "log.category.write".localized, message: message)
         return .success(())
     }
 
