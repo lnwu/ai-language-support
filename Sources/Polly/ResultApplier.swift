@@ -56,7 +56,7 @@ final class ResultApplier {
         cmdDown.post(tap: .cghidEventTap)
         cmdUp.post(tap: .cghidEventTap)
 
-        try? await Task.sleep(nanoseconds: 100_000_000)
+        try? await Task.sleep(nanoseconds: 300_000_000)
         restorePasteboard(existing)
         AppLogStore.log(level: .info, category: "写入", message: force ? "强制粘贴成功" : "粘贴成功")
         return .success(())

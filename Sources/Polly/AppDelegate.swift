@@ -51,13 +51,15 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                 AppLogStore.shared.add(level: .info, category: "流程", message: "开始处理")
                 let selection = try await selectionProvider.getSelection()
                 AppLogStore.shared.add(level: .info, category: "选区", message: "获取成功", detail: selection.text)
-                overlayRenderer.show(at: selection.bounds)
+                if let bounds = selection.bounds {
+                    overlayRenderer.show(at: bounds)
+                }
                 llmClient.optimize(text: selection.text) { [weak self] result in
                     Task { @MainActor in
                         switch result {
                         case .success(let optimized):
                             AppLogStore.shared.add(level: .info, category: "LLM", message: "优化成功")
-                            let forcePasteBundleIds = ["com.tinyspeck.slackmacgap", "com.apple.Notes"]
+                            let forcePasteBundleIds = ["com.tinyspeck.slackmacgap", "com.apple.Notes", "com.google.Chrome"]
                             let applyResult: Result<Void, Error>?
                             if forcePasteBundleIds.contains(selection.appBundleId) {
                                 applyResult = await self?.resultApplier.forcePaste(text: optimized, targetPid: selection.appPid)
@@ -66,7 +68,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                             }
                             if case .failure = applyResult {
                                 AppLogStore.shared.add(level: .error, category: "写入", message: "写入失败")
-                                self?.overlayRenderer.showError(at: selection.bounds)
+                                if let bounds = selection.bounds {
+                                    self?.overlayRenderer.showError(at: bounds)
+                                }
                             } else {
                                 AppLogStore.shared.add(level: .info, category: "写入", message: "写入成功")
                                 self?.overlayRenderer.hide()
@@ -74,7 +78,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                         case .failure(let error):
                             print("[Hotkey] LLM error: \(error)")
                             AppLogStore.shared.add(level: .error, category: "LLM", message: "优化失败", detail: "\(error)")
-                            self?.overlayRenderer.showError(at: selection.bounds)
+                            if let bounds = selection.bounds {
+                                self?.overlayRenderer.showError(at: bounds)
+                            }
                         }
                     }
                 }

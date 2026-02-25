@@ -3,7 +3,7 @@ import ApplicationServices
 
 struct TextSelection {
     let text: String
-    let bounds: CGRect
+    let bounds: CGRect?
     let appPid: pid_t
     let appBundleId: String
 }
@@ -44,7 +44,7 @@ final class SelectionProvider {
         let axElement = focusedElement as! AXUIElement
 
         let selectedText = try await resolveSelectedText(from: axElement)
-        let rect = resolveSelectionBounds(from: axElement) ?? CGRect(origin: NSEvent.mouseLocation, size: .zero)
+        let rect = resolveSelectionBounds(from: axElement)
         let frontmost = NSWorkspace.shared.frontmostApplication
         let appPid = frontmost?.processIdentifier ?? 0
         let appBundleId = frontmost?.bundleIdentifier ?? ""
@@ -89,6 +89,11 @@ final class SelectionProvider {
         guard AXValueGetValue(axValue, .cgRect, &rect) else {
             return nil
         }
+
+        guard rect.width > 0 && rect.height > 0 else {
+            return nil
+        }
+
         return rect
     }
 
