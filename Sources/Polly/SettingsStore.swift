@@ -5,6 +5,15 @@ enum APIProvider: String, CaseIterable {
     case kimi = "Kimi (Moonshot)"
     case openAICompatible = "OpenAI 兼容"
 
+    var displayName: String {
+        switch self {
+        case .kimi:
+            return "provider.kimi".localized
+        case .openAICompatible:
+            return "provider.openai_compatible".localized
+        }
+    }
+
     var defaultApiBase: String {
         switch self {
         case .kimi:

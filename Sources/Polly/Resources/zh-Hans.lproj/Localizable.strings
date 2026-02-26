@@ -8,14 +8,17 @@
 "tab.hotkey" = "快捷键";
 
 "section.api" = "API";
-"field.provider" = "Provider";
+"field.provider" = "服务商";
 "field.api_base" = "API Base";
 "field.api_key" = "API Key";
-"field.model" = "Model";
+"field.model" = "模型";
 "info.keychain" = "API Key 将使用 macOS Keychain 安全存储。首次保存时系统可能弹出授权弹窗。";
 "status.loading_models" = "正在加载模型列表…";
-"button.save" = "Save";
+"button.save" = "保存";
 "status.saved" = "已保存";
+
+"provider.kimi" = "Kimi (Moonshot)";
+"provider.openai_compatible" = "OpenAI 兼容";
 
 "error.api_invalid" = "API 地址无效";
 "error.fetch_models_failed" = "获取模型列表失败: %@";

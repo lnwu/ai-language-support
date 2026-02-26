@@ -95,7 +95,8 @@ path = Sources/Polly;
 				F1E2D3C4B5A69788A9B0C1D2 /* Assets.xcassets */,
 				FF2222222222222222222222 /* Localizable.strings */,
 			);
-			path = Resources;
+			name = Resources;
+			path = Sources/Polly/Resources;
 			sourceTree = "<group>";
 		};
 		8AE5A536F599FB0CA6F57B23 = {
@@ -220,7 +221,6 @@ path = Sources/Polly;
 				FF4444444444444444444444 /* zh-Hans */,
 			);
 			name = Localizable.strings;
-			path = Sources/Polly/Resources;
 			sourceTree = "<group>";
 		};
 /* End PBXVariantGroup section */

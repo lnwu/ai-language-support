@@ -84,7 +84,7 @@ struct SettingsView: View {
                 Section("section.api".localized) {
                     Picker("field.provider".localized, selection: $apiProvider) {
                         ForEach(APIProvider.allCases, id: \.self) { provider in
-                            Text(provider.rawValue).tag(provider)
+                            Text(provider.displayName).tag(provider)
                         }
                     }
                     .onChange(of: apiProvider) { _, newProvider in

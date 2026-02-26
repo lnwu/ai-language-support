@@ -17,6 +17,9 @@
 "button.save" = "Save";
 "status.saved" = "Saved";
 
+"provider.kimi" = "Kimi (Moonshot)";
+"provider.openai_compatible" = "OpenAI Compatible";
+
 "error.api_invalid" = "Invalid API address";
 "error.fetch_models_failed" = "Failed to fetch models: %@";
 "error.fetch_models_http" = "Failed to fetch models (HTTP %d): %@";

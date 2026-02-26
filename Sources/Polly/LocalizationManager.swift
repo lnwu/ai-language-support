@@ -1,15 +1,11 @@
 import Foundation
 
-final class LocalizationManager {
+final class LocalizationManager: Sendable {
     static let shared = LocalizationManager()
 
-    fileprivate var bundle: Bundle = .main
+    fileprivate let bundle: Bundle
 
     private init() {
-        setupLanguage()
-    }
-
-    private func setupLanguage() {
         let systemLanguage = Locale.preferredLanguages.first ?? "en"
 
         let language: String
@@ -20,8 +16,10 @@ final class LocalizationManager {
         }
 
         if let path = Bundle.main.path(forResource: language, ofType: "lproj"),
-           let bundle = Bundle(path: path) {
-            self.bundle = bundle
+           let resolved = Bundle(path: path) {
+            self.bundle = resolved
+        } else {
+            self.bundle = .main
         }
     }
 
