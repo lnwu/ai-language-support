@@ -14,8 +14,6 @@
 "field.model" = "Model";
 "info.keychain" = "API Key will be securely stored in macOS Keychain. Authorization dialog may appear on first save.";
 "status.loading_models" = "Loading model list…";
-"button.save" = "Save";
-"status.saved" = "Saved";
 
 "provider.kimi" = "Kimi (Moonshot)";
 "provider.openai_compatible" = "OpenAI Compatible";
@@ -25,10 +23,6 @@
 "error.fetch_models_http" = "Failed to fetch models (HTTP %d): %@";
 "error.parse_models_failed" = "Failed to parse model list";
 "error.models_empty" = "Model list is empty";
-
-"hint.fill_api_base_key" = "Please fill in API Base and API Key";
-"hint.fill_api_key" = "Please fill in API Key";
-"hint.fetch_models_first" = "Please fetch model list first";
 
 "testing.instruction" = "Select text below or enter new content, press %@ to optimize";
 

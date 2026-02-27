@@ -19,7 +19,6 @@ struct SettingsView: View {
     @State private var isRecordingHotkey = false
     @State private var hotkeyError: String = ""
     @State private var hotkeyMonitor: Any?
-    @State private var showSavedToast = false
 
     private let permissionManager = PermissionManager()
 
@@ -72,9 +71,14 @@ struct SettingsView: View {
         }
         .onChange(of: apiBase) { _, _ in
             scheduleModelsFetchIfNeeded()
+            persistCurrentConfig()
         }
         .onChange(of: apiKey) { _, _ in
             scheduleModelsFetchIfNeeded()
+            persistCurrentConfig()
+        }
+        .onChange(of: modelName) { _, _ in
+            persistCurrentConfig()
         }
     }
 
@@ -95,6 +99,7 @@ struct SettingsView: View {
                         models = []
                         lastFetchedKey = ""
                         scheduleModelsFetchIfNeeded()
+                        persistCurrentConfig()
                     }
 
                     if apiProvider == .openAICompatible {
@@ -115,27 +120,10 @@ struct SettingsView: View {
                 if isLoadingModels {
                     Text("status.loading_models".localized)
                 }
-                if let hint = formHint {
-                    Text(hint)
-                        .foregroundColor(.red)
-                }
                 if !errorText.isEmpty {
                     Text(errorText)
                         .foregroundColor(.red)
                 }
-            }
-
-            HStack {
-                Spacer()
-                if showSavedToast {
-                    Text("status.saved".localized)
-                        .foregroundColor(.green)
-                        .transition(.opacity)
-                }
-                Button("button.save".localized) {
-                    saveSettings()
-                }
-                .disabled(!isFormValid)
             }
         }
         .padding(20)
@@ -245,42 +233,10 @@ struct SettingsView: View {
         scheduleModelsFetchIfNeeded()
     }
 
-    private func saveSettings() {
+    private func persistCurrentConfig() {
+        guard loaded else { return }
         let config = ProviderConfig(provider: apiProvider, apiKey: apiKey, modelName: modelName, apiBase: apiBase)
         SettingsStore.shared.save(config: config)
-        withAnimation {
-            showSavedToast = true
-        }
-        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-            withAnimation {
-                showSavedToast = false
-            }
-        }
-    }
-
-    private var isFormValid: Bool {
-        let apiBaseValid = apiProvider == .kimi || !apiBase.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
-        return apiBaseValid &&
-        !apiKey.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty &&
-        !modelName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
-    }
-
-    private var formHint: String? {
-        if isFormValid {
-            return nil
-        }
-        let needsApiBase = apiProvider == .openAICompatible && apiBase.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
-        if needsApiBase || apiKey.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-            if needsApiBase {
-                return "hint.fill_api_base_key".localized
-            } else {
-                return "hint.fill_api_key".localized
-            }
-        }
-        if modelName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-            return "hint.fetch_models_first".localized
-        }
-        return nil
     }
 
     private func scheduleModelsFetchIfNeeded() {

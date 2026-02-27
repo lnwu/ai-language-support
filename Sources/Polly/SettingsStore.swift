@@ -91,12 +91,14 @@ final class SettingsStore {
     func save(config: ProviderConfig) {
         defaults.set(config.provider.rawValue, forKey: Keys.currentProvider)
 
-        if !config.apiKey.isEmpty {
-            keychain.save(password: config.apiKey, account: Keys.apiKeyKey(for: config.provider))
+        let apiKeyAccount = Keys.apiKeyKey(for: config.provider)
+        if config.apiKey.isEmpty {
+            keychain.deletePassword(account: apiKeyAccount)
+        } else {
+            keychain.save(password: config.apiKey, account: apiKeyAccount)
         }
         defaults.set(config.modelName, forKey: Keys.modelNameKey(for: config.provider))
 
-        // 仅自定义 provider 存储 apiBase
         if config.provider == .openAICompatible {
             defaults.set(config.apiBase, forKey: Keys.apiBaseKey(for: config.provider))
         }
