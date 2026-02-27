@@ -12,6 +12,7 @@ final class ResultApplier {
         "com.tinyspeck.slackmacgap",
         "com.apple.Notes",
         "com.google.Chrome",
+        "com.microsoft.VSCode",
     ]
 
     private static let pasteDelay: UInt64 = 200_000_000
