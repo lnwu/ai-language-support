@@ -11,13 +11,6 @@
 
 Polly 是一个 macOS 菜单栏应用，用于优化任意应用选中文本，调用 OpenAI 兼容 API 并原位替换。菜单栏使用 SwiftUI `MenuBarExtra`，设置窗口使用 SwiftUI `Settings` scene，业务逻辑通过 `AppDelegate` 驱动。
 
-## 快速开始
-
-- 用 Xcode 打开 `Polly.xcodeproj`
-- 从 Xcode 运行应用
-- 按提示授予辅助功能权限
-- 在设置中配置 API Base / Model / API Key
-
 ## 常用命令
 
 - 构建：
@@ -27,9 +20,13 @@ Polly 是一个 macOS 菜单栏应用，用于优化任意应用选中文本，�
 
 - App 入口：`Sources/Polly/AppDelegate.swift`
 - SwiftUI 包装：`Sources/Polly/PollyApp.swift`
+- 全局状态：`Sources/Polly/AppState.swift`
 - 设置界面：`Sources/Polly/SettingsView.swift`
+- 设置标签页枚举：`Sources/Polly/SettingsTab.swift`
 - 日志界面：`Sources/Polly/LogsTabView.swift`
 - 快捷键监听：`Sources/Polly/HotkeyManager.swift`
+- 快捷键模型：`Sources/Polly/Hotkey.swift`
+- 权限管理：`Sources/Polly/PermissionManager.swift`
 - 选区获取：`Sources/Polly/SelectionProvider.swift`
 - 悬浮层渲染：`Sources/Polly/OverlayRenderer.swift`
 - LLM 客户端：`Sources/Polly/LLMClient.swift`
@@ -38,11 +35,3 @@ Polly 是一个 macOS 菜单栏应用，用于优化任意应用选中文本，�
 - 日志存储：`Sources/Polly/AppLogStore.swift`、`Sources/Polly/APILogStore.swift`
 - 国际化管理：`Sources/Polly/LocalizationManager.swift`
 - 本地化资源：`Sources/Polly/Resources/en.lproj/`、`Sources/Polly/Resources/zh-Hans.lproj/`
-
-## 说明
-
-- 使用 macOS Accessibility API 获取选区与写回。
-- `LLMClient` 使用 async/await 调用 `/chat/completions` API。
-- 日志仅存在于内存中，不做持久化，应用重启后自动清空。
-- `ResultApplier` 内部维护强制粘贴的应用列表，调用方传入 `appBundleId` 即可，无需关心写回策略。
-- 应用已支持国际化 (i18n)，根据系统语言自动在中文和英文之间切换。所有用户可见文本都已本地化。

@@ -1,6 +1,4 @@
-# ai-language-support
-
-AI 语言优化器
+# AI 语言优化器
 
 ## 安装
 
