@@ -7,81 +7,135 @@ on:
 env:
   APP_NAME: Polly
 
+concurrency:
+  group: release-${{ github.event.release.tag_name }}
+  cancel-in-progress: false
+
 jobs:
   build-and-release:
     runs-on: macos-26
     permissions:
       contents: write
-    
+
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
-      
+
     - name: Select Xcode
       run: |
+        set -euo pipefail
         sudo xcode-select -s /Applications/Xcode.app/Contents/Developer
         xcodebuild -version
-        
+
+    - name: Resolve version
+      id: version
+      env:
+        RELEASE_TAG: ${{ github.event.release.tag_name }}
+      run: |
+        set -euo pipefail
+        TAG="$RELEASE_TAG"
+        VERSION="$TAG"
+        VERSION="${VERSION#v}"
+        echo "tag=${TAG}" >> "$GITHUB_OUTPUT"
+        echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
+
+    - name: Check Homebrew tap token
+      env:
+        HOMEBREW_TAP_TOKEN: ${{ secrets.HOMEBREW_TAP_TOKEN }}
+      run: |
+        set -euo pipefail
+        test -n "$HOMEBREW_TAP_TOKEN"
+
     - name: Build Release
       run: |
+        set -euo pipefail
+        rm -rf build
         xcodebuild -project Polly.xcodeproj \
           -scheme Polly \
           -configuration Release \
           -destination "platform=macOS,arch=arm64" \
           CODE_SIGN_IDENTITY="" \
+          CODE_SIGNING_ALLOWED=NO \
           CODE_SIGNING_REQUIRED=NO \
           CODE_SIGN_ENTITLEMENTS="" \
+          MARKETING_VERSION="${{ steps.version.outputs.version }}" \
+          CURRENT_PROJECT_VERSION="${{ github.run_number }}" \
           build \
           CONFIGURATION_BUILD_DIR=./build
-          
+
+    - name: Verify app version
+      run: |
+        set -euo pipefail
+        PLIST="build/${{ env.APP_NAME }}.app/Contents/Info.plist"
+        VERSION=$(/usr/libexec/PlistBuddy -c 'Print :CFBundleShortVersionString' "$PLIST")
+        BUILD=$(/usr/libexec/PlistBuddy -c 'Print :CFBundleVersion' "$PLIST")
+        if [ "$VERSION" != "${{ steps.version.outputs.version }}" ]; then
+          echo "Expected version ${{ steps.version.outputs.version }}, got $VERSION" >&2
+          exit 1
+        fi
+        if [ "$BUILD" != "${{ github.run_number }}" ]; then
+          echo "Expected build ${{ github.run_number }}, got $BUILD" >&2
+          exit 1
+        fi
+
     - name: Ad-hoc sign app
       run: |
-        cd build
-        codesign --force --deep --sign - "${{ env.APP_NAME }}.app"
-        cd ..
-        
+        set -euo pipefail
+        codesign --force --options runtime --sign - "build/${{ env.APP_NAME }}.app"
+        codesign --verify --strict --verbose=2 "build/${{ env.APP_NAME }}.app"
+
     - name: Create zip archive
       run: |
-        cd build
-        zip -r ../${{ env.APP_NAME }}.zip ${{ env.APP_NAME }}.app
-        cd ..
-        
+        set -euo pipefail
+        ditto -c -k --keepParent "build/${{ env.APP_NAME }}.app" "${{ env.APP_NAME }}.zip"
+        ZIP_CONTENTS=$(zipinfo -1 "${{ env.APP_NAME }}.zip")
+        grep -q "^${{ env.APP_NAME }}.app/" <<< "$ZIP_CONTENTS"
+
     - name: Calculate sha256
       id: sha256
       run: |
-        echo "sha256=$(shasum -a 256 ${{ env.APP_NAME }}.zip | cut -d ' ' -f 1)" >> $GITHUB_OUTPUT
-        
+        set -euo pipefail
+        ZIP="${{ env.APP_NAME }}.zip"
+        echo "sha256=$(shasum -a 256 "$ZIP" | cut -d ' ' -f 1)" >> "$GITHUB_OUTPUT"
+
     - name: Upload to Release
       env:
         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        RELEASE_TAG: ${{ github.event.release.tag_name }}
       run: |
-        gh release upload ${{ github.event.release.tag_name }} ${{ env.APP_NAME }}.zip --clobber
-        
+        set -euo pipefail
+        gh release upload "$RELEASE_TAG" "${{ env.APP_NAME }}.zip" \
+          --repo "${{ github.repository }}" \
+          --clobber
+
     - name: Setup Git
       run: |
+        set -euo pipefail
         git config --global user.name "GitHub Actions"
         git config --global user.email "actions@github.com"
-        
-    - name: Clone homebrew-tap
-      env:
-        HOMEBREW_TAP_TOKEN: ${{ secrets.HOMEBREW_TAP_TOKEN }}
-      run: |
-        git clone https://oauth2:${HOMEBREW_TAP_TOKEN}@github.com/${{ github.repository_owner }}/homebrew-tap.git tap
-        
+
+    - name: Checkout homebrew-tap
+      uses: actions/checkout@v4
+      with:
+        repository: ${{ github.repository_owner }}/homebrew-tap
+        token: ${{ secrets.HOMEBREW_TAP_TOKEN }}
+        path: tap
+
     - name: Update Cask
       run: |
-        VERSION="${{ github.event.release.tag_name }}"
-        VERSION="${VERSION#v}"
+        set -euo pipefail
+        TAG="${{ steps.version.outputs.tag }}"
+        VERSION="${{ steps.version.outputs.version }}"
         SHA256="${{ steps.sha256.outputs.sha256 }}"
         REPO="${{ github.repository }}"
-        
+
         mkdir -p tap/Casks
-        
+
         printf 'cask "polly" do\n' > tap/Casks/polly.rb
         printf '  version "%s"\n' "$VERSION" >> tap/Casks/polly.rb
         printf '  sha256 "%s"\n' "$SHA256" >> tap/Casks/polly.rb
         printf '\n' >> tap/Casks/polly.rb
-        printf '  url "https://github.com/%s/releases/download/v#{version}/Polly.zip"\n' "$REPO" >> tap/Casks/polly.rb
+        printf '  url "https://github.com/%s/releases/download/%s/Polly.zip"\n' "$REPO" "$TAG" >> tap/Casks/polly.rb
         printf '  name "Polly"\n' >> tap/Casks/polly.rb
         printf '  desc "macOS menubar app to optimize selected text with AI"\n' >> tap/Casks/polly.rb
         printf '  homepage "https://github.com/%s"\n' "$REPO" >> tap/Casks/polly.rb
@@ -93,17 +147,29 @@ jobs:
         printf '      Polly is not signed with a Developer ID certificate.\n' >> tap/Casks/polly.rb
         printf '      You may need to go to System Settings > Privacy & Security > Security\n' >> tap/Casks/polly.rb
         printf '      and click "Open Anyway" the first time you run the app.\n' >> tap/Casks/polly.rb
+        printf '\n' >> tap/Casks/polly.rb
+        printf '      Because the app is ad-hoc signed, after each update you may need to\n' >> tap/Casks/polly.rb
+        printf '      re-grant Accessibility permission in System Settings >\n' >> tap/Casks/polly.rb
+        printf '      Privacy & Security > Accessibility.\n' >> tap/Casks/polly.rb
         printf '    EOS\n' >> tap/Casks/polly.rb
         printf '  end\n' >> tap/Casks/polly.rb
         printf 'end\n' >> tap/Casks/polly.rb
-        
-    - name: Commit and push to homebrew-tap
+
+    - name: Validate Cask syntax
       run: |
+        set -euo pipefail
+        ruby -c tap/Casks/polly.rb
+
+    - name: Commit and push to homebrew-tap
+      env:
+        RELEASE_TAG: ${{ github.event.release.tag_name }}
+      run: |
+        set -euo pipefail
         cd tap
         git add Casks/polly.rb
         if git diff --cached --quiet; then
           echo "No changes to commit"
         else
-          git commit -m "Update polly to ${{ github.event.release.tag_name }}"
+          git commit -m "Update polly to $RELEASE_TAG"
           git push origin main
         fi
