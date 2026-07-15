@@ -1,9 +1,7 @@
 import AppKit
-import SwiftUI
 
 @MainActor
 final class AppDelegate: NSObject, NSApplicationDelegate {
-    private let permissionManager = PermissionManager()
     private let selectionProvider = SelectionProvider()
     private let overlayRenderer = OverlayRenderer()
     private let llmClient = LLMClient()
@@ -12,9 +10,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private var isProcessing = false
 
     func applicationDidFinishLaunching(_ notification: Notification) {
-        if !permissionManager.isTrusted() {
-            AppState.shared.requestOpenSettings(tab: .permissions)
-        }
         let hotkey = SettingsStore.shared.loadHotkey()
         hotkeyManager.onHotkey = { [weak self] in
             AppLogStore.shared.add(level: .info, category: "log.category.hotkey".localized, message: "log.hotkey.triggered".localized)
@@ -31,17 +26,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     func applicationWillTerminate(_ notification: Notification) {
         hotkeyManager.unregister()
-    }
-
-    func applicationDidBecomeActive(_ notification: Notification) {
-        if AppState.shared.needsOpenSettings {
-            DispatchQueue.main.async {
-                AppState.shared.needsOpenSettings = false
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                    AppState.shared.needsOpenSettings = true
-                }
-            }
-        }
     }
 
     private func handleHotkey() {
@@ -85,7 +69,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                 if let selectionError = error as? SelectionError {
                     switch selectionError {
                     case .notTrusted:
-                        AppState.shared.requestOpenSettings(tab: .permissions)
+                        return
                     case .noSelection, .noFocusedElement:
                         return
                     case .boundsUnavailable:

@@ -3,7 +3,6 @@ import SwiftUI
 @main
 struct PollyApp: App {
     @NSApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate
-    @ObservedObject private var appState = AppState.shared
     @Environment(\.openSettings) private var openSettings
 
     var body: some Scene {
@@ -19,12 +18,6 @@ struct PollyApp: App {
             .keyboardShortcut("q")
         } label: {
             Image("StatusBarIcon")
-        }
-        .onChange(of: appState.needsOpenSettings) { _, newValue in
-            if newValue {
-                appState.needsOpenSettings = false
-                openSettingsWindow()
-            }
         }
 
         Settings {
