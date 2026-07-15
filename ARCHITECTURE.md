@@ -30,7 +30,7 @@ flowchart TD
 
     SettingsScene --> SettingsView[SettingsView\n设置界面]
     SettingsView --> Settings
-    SettingsView --> Permission
+    SettingsView --> PermissionManager
     SettingsView --> Hotkey
     SettingsView --> LogsTab[LogsTabView\n日志页]
     LogsTab --> AppLogs
