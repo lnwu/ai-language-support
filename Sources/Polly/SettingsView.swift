@@ -2,7 +2,7 @@ import SwiftUI
 
 @MainActor
 struct SettingsView: View {
-    @State private var apiProvider: APIProvider = .openAICompatible
+    @State private var apiProvider: APIProvider = .deepseek
     @State private var apiBase: String = ""
     @State private var modelName: String = ""
     @State private var apiKey: String = ""
@@ -90,20 +90,6 @@ struct SettingsView: View {
                         ForEach(APIProvider.allCases, id: \.self) { provider in
                             Text(provider.displayName).tag(provider)
                         }
-                    }
-                    .onChange(of: apiProvider) { _, newProvider in
-                        let config = SettingsStore.shared.loadConfig(for: newProvider)
-                        apiKey = config.apiKey
-                        modelName = config.modelName
-                        apiBase = config.apiBase
-                        models = []
-                        lastFetchedKey = ""
-                        scheduleModelsFetchIfNeeded()
-                        persistCurrentConfig()
-                    }
-
-                    if apiProvider == .openAICompatible {
-                        TextField("field.api_base".localized, text: $apiBase)
                     }
 
                     SecureField("field.api_key".localized, text: $apiKey)
@@ -250,7 +236,7 @@ struct SettingsView: View {
             errorText = ""
             return
         }
-        let fingerprint = "\(apiProvider.rawValue)|\(effectiveBase)|\(key)"
+        let fingerprint = "\(effectiveBase)|\(key)"
         guard fingerprint != lastFetchedKey else { return }
         lastFetchedKey = fingerprint
         Task { await fetchModels(apiBase: effectiveBase, apiKey: key) }

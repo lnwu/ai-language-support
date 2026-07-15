@@ -85,7 +85,7 @@ final class LLMClient {
                 ChatMessage(role: "system", content: systemPrompt),
                 ChatMessage(role: "user", content: text)
             ],
-            temperature: config.provider == .kimi ? 1.0 : 0.2
+            temperature: 0.2
         )
 
         let bodyData = try encoder.encode(chatRequest)

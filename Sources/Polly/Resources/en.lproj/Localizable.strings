@@ -15,8 +15,7 @@
 "info.keychain" = "API Key will be securely stored in macOS Keychain. Authorization dialog may appear on first save.";
 "status.loading_models" = "Loading model list…";
 
-"provider.kimi" = "Kimi (Moonshot)";
-"provider.openai_compatible" = "OpenAI Compatible";
+"provider.deepseek" = "DeepSeek";
 
 "error.api_invalid" = "Invalid API address";
 "error.fetch_models_failed" = "Failed to fetch models: %@";

@@ -2,24 +2,19 @@ import AppKit
 import Foundation
 
 enum APIProvider: String, CaseIterable {
-    case kimi = "Kimi (Moonshot)"
-    case openAICompatible = "OpenAI 兼容"
+    case deepseek = "DeepSeek"
 
     var displayName: String {
         switch self {
-        case .kimi:
-            return "provider.kimi".localized
-        case .openAICompatible:
-            return "provider.openai_compatible".localized
+        case .deepseek:
+            return "provider.deepseek".localized
         }
     }
 
     var defaultApiBase: String {
         switch self {
-        case .kimi:
-            return "https://api.moonshot.cn/v1"
-        case .openAICompatible:
-            return ""
+        case .deepseek:
+            return "https://api.deepseek.com"
         }
     }
 }
@@ -32,10 +27,8 @@ struct ProviderConfig {
 
     var effectiveApiBase: String {
         switch provider {
-        case .kimi:
-            return APIProvider.kimi.defaultApiBase
-        case .openAICompatible:
-            return apiBase
+        case .deepseek:
+            return provider.defaultApiBase
         }
     }
 }
@@ -74,8 +67,8 @@ final class SettingsStore {
     }
 
     func load() -> AppSettings {
-        let providerRaw = defaults.string(forKey: Keys.currentProvider) ?? APIProvider.kimi.rawValue
-        let currentProvider = APIProvider(rawValue: providerRaw) ?? .kimi
+        let providerRaw = defaults.string(forKey: Keys.currentProvider) ?? APIProvider.deepseek.rawValue
+        let currentProvider = APIProvider(rawValue: providerRaw) ?? .deepseek
         let currentConfig = loadConfig(for: currentProvider)
         let hotkey = loadHotkey()
         return AppSettings(currentProvider: currentProvider, currentConfig: currentConfig, hotkey: hotkey)
@@ -98,10 +91,7 @@ final class SettingsStore {
             keychain.save(password: config.apiKey, account: apiKeyAccount)
         }
         defaults.set(config.modelName, forKey: Keys.modelNameKey(for: config.provider))
-
-        if config.provider == .openAICompatible {
-            defaults.set(config.apiBase, forKey: Keys.apiBaseKey(for: config.provider))
-        }
+        defaults.set(config.apiBase, forKey: Keys.apiBaseKey(for: config.provider))
     }
 
     func saveHotkey(_ hotkey: Hotkey) {
