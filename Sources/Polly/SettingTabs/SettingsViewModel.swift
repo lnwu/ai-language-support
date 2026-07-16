@@ -10,7 +10,6 @@ class SettingsViewModel: ObservableObject {
   @Published var isLoadingModels = false
   @Published var models: [String] = []
   @Published var errorText: String = ""
-  @Published var lastFetchedKey: String = ""
   @Published var isTrusted = false
   @Published var testText: String = "how you are"
   @Published var hotkey: Hotkey = Hotkey.default()
@@ -30,7 +29,11 @@ class SettingsViewModel: ObservableObject {
     apiBase = settings.currentConfig.apiBase
     hotkey = settings.hotkey
     loaded = true
-    scheduleModelsFetchIfNeeded()
+    
+    if !apiKey.isEmpty && !modelName.isEmpty {
+      let config = ProviderConfig(provider: apiProvider, apiKey: apiKey, modelName: modelName, apiBase: apiBase)
+      Task { await fetchModels(apiBase: config.effectiveApiBase, apiKey: apiKey) }
+    }
   }
 
   func persistCurrentConfig() {
@@ -39,7 +42,7 @@ class SettingsViewModel: ObservableObject {
     SettingsStore.shared.save(config: config)
   }
 
-  func scheduleModelsFetchIfNeeded() {
+  func refreshModels() {
     guard loaded else { return }
     let config = ProviderConfig(provider: apiProvider, apiKey: apiKey, modelName: modelName, apiBase: apiBase)
     let effectiveBase = config.effectiveApiBase
@@ -50,16 +53,12 @@ class SettingsViewModel: ObservableObject {
       errorText = ""
       return
     }
-    let fingerprint = "\(effectiveBase)|\(key)"
-    guard fingerprint != lastFetchedKey else { return }
-    lastFetchedKey = fingerprint
     Task { await fetchModels(apiBase: effectiveBase, apiKey: key) }
   }
 
   func fetchModels(apiBase: String, apiKey: String) async {
     isLoadingModels = true
     errorText = ""
-    models = []
 
     guard let url = URL(string: "\(apiBase)/models") else {
       isLoadingModels = false

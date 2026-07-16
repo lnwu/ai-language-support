@@ -53,11 +53,9 @@ struct SettingsView: View {
       }
     }
     .onChange(of: viewModel.apiBase) { _, _ in
-      viewModel.scheduleModelsFetchIfNeeded()
       viewModel.persistCurrentConfig()
     }
     .onChange(of: viewModel.apiKey) { _, _ in
-      viewModel.scheduleModelsFetchIfNeeded()
       viewModel.persistCurrentConfig()
     }
     .onChange(of: viewModel.modelName) { _, _ in

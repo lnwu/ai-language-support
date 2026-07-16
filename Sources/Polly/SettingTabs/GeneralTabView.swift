@@ -17,15 +17,30 @@ struct GeneralTabView: View {
           Text("info.keychain".localized)
             .font(.caption)
             .foregroundColor(.secondary)
-          Picker("field.model".localized, selection: $viewModel.modelName) {
-            ForEach(viewModel.models, id: \.self) { model in
-              Text(model).tag(model)
+          
+          HStack {
+            Picker("field.model".localized, selection: $viewModel.modelName) {
+              ForEach(viewModel.models, id: \.self) { model in
+                Text(model).tag(model)
+              }
             }
+            .disabled(viewModel.models.isEmpty)
+            
+            Button {
+              viewModel.refreshModels()
+            } label: {
+              Image(systemName: "arrow.clockwise")
+                .rotationEffect(.degrees(viewModel.isLoadingModels ? 360 : 0))
+                .animation(
+                  viewModel.isLoadingModels 
+                    ? .linear(duration: 1).repeatForever(autoreverses: false)
+                    : .default,
+                  value: viewModel.isLoadingModels
+                )
+            }
+            .disabled(viewModel.isLoadingModels)
+            .help("button.refresh_models".localized)
           }
-          .disabled(viewModel.models.isEmpty)
-        }
-        if viewModel.isLoadingModels {
-          Text("status.loading_models".localized)
         }
         if !viewModel.errorText.isEmpty {
           Text(viewModel.errorText)

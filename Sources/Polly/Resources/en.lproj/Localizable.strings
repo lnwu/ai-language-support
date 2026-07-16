@@ -14,6 +14,7 @@
 "field.model" = "Model";
 "info.keychain" = "API Key will be securely stored in macOS Keychain. Authorization dialog may appear on first save.";
 "status.loading_models" = "Loading model list…";
+"button.refresh_models" = "Refresh model list";
 
 "provider.deepseek" = "DeepSeek";
 

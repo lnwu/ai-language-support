@@ -8,6 +8,7 @@ struct PollyApp: App {
   var body: some Scene {
     MenuBarExtra {
       Button("menu.settings".localized) {
+        NSApp.activate(ignoringOtherApps: true)
         openSettings()
       }
       .keyboardShortcut(",")

@@ -14,6 +14,7 @@
 "field.model" = "模型";
 "info.keychain" = "API Key 将使用 macOS Keychain 安全存储。首次保存时系统可能弹出授权弹窗。";
 "status.loading_models" = "正在加载模型列表…";
+"button.refresh_models" = "刷新模型列表";
 
 "provider.deepseek" = "DeepSeek";
 
