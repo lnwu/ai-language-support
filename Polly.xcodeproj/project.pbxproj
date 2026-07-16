@@ -11,7 +11,7 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		4D6BBB040C714D2586D0DE11 /* Exceptions for "Polly" folder in "Polly" target */ = {
+		4D6BBB040C714D2586D0DE11 /* Exceptions for "Sources/Polly" folder in "Polly" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Info.plist,
@@ -21,10 +21,10 @@
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		85378F297B2247F185711930 /* Polly */ = {
+		85378F297B2247F185711930 /* Sources/Polly */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
-				4D6BBB040C714D2586D0DE11 /* Exceptions for "Polly" folder in "Polly" target */,
+				4D6BBB040C714D2586D0DE11 /* Exceptions for "Sources/Polly" folder in "Polly" target */,
 			);
 			path = Sources/Polly;
 			sourceTree = "<group>";
@@ -35,7 +35,7 @@
 		8AE5A536F599FB0CA6F57B23 = {
 			isa = PBXGroup;
 			children = (
-				85378F297B2247F185711930 /* Polly */,
+				85378F297B2247F185711930 /* Sources/Polly */,
 				D4ACA71310346A2966DA0E65 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -63,7 +63,7 @@
 			dependencies = (
 			);
 			fileSystemSynchronizedGroups = (
-				85378F297B2247F185711930 /* Polly */,
+				85378F297B2247F185711930 /* Sources/Polly */,
 			);
 			name = Polly;
 			packageProductDependencies = (
@@ -93,6 +93,7 @@
 			knownRegions = (
 				en,
 				"zh-Hans",
+				Base,
 			);
 			mainGroup = 8AE5A536F599FB0CA6F57B23;
 			minimizedProjectReferenceProxies = 1;
@@ -105,16 +106,6 @@
 		};
 /* End PBXProject section */
 
-/* Begin PBXSourcesBuildPhase section */
-		1B758298E7194C9F3065BEF4 /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-/* End PBXSourcesBuildPhase section */
-
 /* Begin PBXResourcesBuildPhase section */
 		A1B2C3D4E5F6000011111111 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
@@ -124,6 +115,16 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		1B758298E7194C9F3065BEF4 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
 
 /* Begin XCBuildConfiguration section */
 		652A4AA5D0BAC62D47B5C756 /* Release */ = {
