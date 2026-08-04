@@ -42,44 +42,26 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         let selection = try await selectionProvider.getSelection()
         AppLogStore.shared.add(level: .info, category: "log.category.selection".localized, message: "log.selection.success".localized, detail: selection.text)
 
-        if let bounds = selection.bounds {
-          overlayRenderer.show(at: bounds)
-        }
+        overlayRenderer.show()
 
         let optimized = try await llmClient.optimize(text: selection.text)
         AppLogStore.shared.add(level: .info, category: "log.category.llm".localized, message: "log.llm.success".localized)
 
         let applyResult = await resultApplier.apply(
           text: optimized,
-          targetPid: selection.appPid,
-          appBundleId: selection.appBundleId
+          targetPid: selection.appPid
         )
 
         if case .failure = applyResult {
           AppLogStore.shared.add(level: .error, category: "log.category.write".localized, message: "log.write.failed".localized)
-          if let bounds = selection.bounds {
-            overlayRenderer.showError(at: bounds)
-          }
+          overlayRenderer.showError()
         } else {
           AppLogStore.shared.add(level: .info, category: "log.category.write".localized, message: "log.write.success".localized)
           overlayRenderer.hide()
         }
       } catch {
         AppLogStore.shared.add(level: .error, category: "log.category.process".localized, message: "log.process.failed".localized, detail: "\(error)")
-        if let selectionError = error as? SelectionError {
-          switch selectionError {
-          case .notTrusted:
-            return
-          case .noSelection, .noFocusedElement:
-            return
-          case .boundsUnavailable:
-            let mousePoint = NSEvent.mouseLocation
-            overlayRenderer.showError(at: CGRect(origin: mousePoint, size: .zero))
-          }
-        } else {
-          let mousePoint = NSEvent.mouseLocation
-          overlayRenderer.showError(at: CGRect(origin: mousePoint, size: .zero))
-        }
+        overlayRenderer.showError()
       }
     }
   }

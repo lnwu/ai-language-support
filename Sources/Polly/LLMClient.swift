@@ -69,7 +69,7 @@ final class LLMClient {
     guard !config.apiKey.isEmpty else {
       throw LLMError.missingApiKey
     }
-    let effectiveBase = config.effectiveApiBase
+    let effectiveBase = config.provider.defaultApiBase
     guard let url = URL(string: "\(effectiveBase)/chat/completions") else {
       throw LLMError.invalidUrl
     }

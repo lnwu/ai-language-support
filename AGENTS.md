@@ -28,6 +28,7 @@ Polly 是一个 macOS 菜单栏应用，用于优化任意应用选中文本，�
 - 快捷键模型：`Sources/Polly/Hotkey.swift`
 - 权限管理：`Sources/Polly/PermissionManager.swift`
 - 选区获取：`Sources/Polly/SelectionProvider.swift`
+- AX 树激活：`Sources/Polly/AXTreeEnabler.swift`
 - 悬浮层渲染：`Sources/Polly/OverlayRenderer.swift`
 - LLM 客户端：`Sources/Polly/LLMClient.swift`
 - 写回处理：`Sources/Polly/ResultApplier.swift`

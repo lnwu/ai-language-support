@@ -136,6 +136,7 @@ struct AppLogEntryRow: View {
         Image(systemName: isExpanded ? "chevron.down" : "chevron.right")
           .font(.caption)
           .foregroundColor(.secondary)
+          .frame(width: 12)
 
         Text(dateFormatter.string(from: entry.timestamp))
           .font(.caption)
@@ -148,6 +149,7 @@ struct AppLogEntryRow: View {
         Text("[\(entry.category)] \(entry.message)")
           .font(.body)
           .lineLimit(1)
+          .textSelection(.enabled)
 
         Spacer()
       }
@@ -193,6 +195,7 @@ struct LogEntryRow: View {
         Image(systemName: isExpanded ? "chevron.down" : "chevron.right")
           .font(.caption)
           .foregroundColor(.secondary)
+          .frame(width: 12)
 
         Text(dateFormatter.string(from: entry.timestamp))
           .font(.caption)
@@ -210,6 +213,7 @@ struct LogEntryRow: View {
         Text(previewText)
           .font(.body)
           .lineLimit(1)
+          .textSelection(.enabled)
 
         Spacer()
       }

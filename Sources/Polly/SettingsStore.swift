@@ -23,14 +23,6 @@ struct ProviderConfig {
   let provider: APIProvider
   var apiKey: String
   var modelName: String
-  var apiBase: String
-
-  var effectiveApiBase: String {
-    switch provider {
-    case .deepseek:
-      return provider.defaultApiBase
-    }
-  }
 }
 
 struct AppSettings {
@@ -56,9 +48,6 @@ final class SettingsStore {
     static func modelNameKey(for provider: APIProvider) -> String {
       "\(provider.rawValue)_modelName"
     }
-    static func apiBaseKey(for provider: APIProvider) -> String {
-      "\(provider.rawValue)_apiBase"
-    }
 
     // Hotkey keys
     static let hotkeyKeyCode = "hotkeyKeyCode"
@@ -77,8 +66,7 @@ final class SettingsStore {
   func loadConfig(for provider: APIProvider) -> ProviderConfig {
     let apiKey = keychain.readPassword(account: Keys.apiKeyKey(for: provider)) ?? ""
     let modelName = defaults.string(forKey: Keys.modelNameKey(for: provider)) ?? ""
-    let apiBase = defaults.string(forKey: Keys.apiBaseKey(for: provider)) ?? ""
-    return ProviderConfig(provider: provider, apiKey: apiKey, modelName: modelName, apiBase: apiBase)
+    return ProviderConfig(provider: provider, apiKey: apiKey, modelName: modelName)
   }
 
   func save(config: ProviderConfig) {
@@ -91,7 +79,6 @@ final class SettingsStore {
       keychain.save(password: config.apiKey, account: apiKeyAccount)
     }
     defaults.set(config.modelName, forKey: Keys.modelNameKey(for: config.provider))
-    defaults.set(config.apiBase, forKey: Keys.apiBaseKey(for: config.provider))
   }
 
   func saveHotkey(_ hotkey: Hotkey) {

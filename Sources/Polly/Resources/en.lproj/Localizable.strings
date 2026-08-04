@@ -9,11 +9,9 @@
 
 "section.api" = "API";
 "field.provider" = "Provider";
-"field.api_base" = "API Base";
 "field.api_key" = "API Key";
 "field.model" = "Model";
 "info.keychain" = "API Key will be securely stored in macOS Keychain. Authorization dialog may appear on first save.";
-"status.loading_models" = "Loading model list…";
 "button.refresh_models" = "Refresh model list";
 
 "provider.deepseek" = "DeepSeek";
@@ -63,7 +61,6 @@
 "error.selection.not_trusted" = "Accessibility permission not granted";
 "error.selection.no_focused_element" = "No editable text field detected";
 "error.selection.no_selection" = "No selected text detected";
-"error.selection.bounds_unavailable" = "Unable to locate selection";
 
 "log.category.hotkey" = "Hotkey";
 "log.category.process" = "Process";
@@ -78,12 +75,14 @@
 "log.process.in_progress" = "Previous processing not finished, skipped";
 "log.process.failed" = "Processing failed";
 "log.selection.success" = "Retrieved successfully";
-"log.selection.copy_fallback" = "Using copy fallback";
+"log.selection.ax_tree_retry" = "AX read failed, enabling accessibility tree";
 "log.llm.success" = "Optimized successfully";
 "log.write.success" = "Written successfully";
 "log.write.failed" = "Write failed";
-"log.write.no_focus_fallback" = "No focus acquired, using paste fallback";
-"log.write.ax_failed_fallback" = "AX write failed, using paste fallback";
-"log.write.paste_failed" = "Paste failed";
-"log.write.paste_success" = "Pasted successfully";
-"log.write.force_paste_success" = "Force pasted successfully";
+"log.write.no_focus" = "No focused text field";
+"log.write.focus_changed" = "Focus switched to another app, write cancelled";
+"log.write.ax_tree_retry" = "AX write failed, enabling accessibility tree";
+"log.write.value_fallback" = "Written via whole-value replacement";
+"log.write.typing_fallback" = "Written via simulated typing";
+"log.write.cached_strategy_failed" = "Cached write strategy failed, re-detecting";
+"log.write.ax_failed" = "AX write failed, this app does not support direct writing";

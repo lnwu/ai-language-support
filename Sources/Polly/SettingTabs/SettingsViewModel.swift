@@ -3,7 +3,6 @@ import SwiftUI
 @MainActor
 class SettingsViewModel: ObservableObject {
   @Published var apiProvider: APIProvider = .deepseek
-  @Published var apiBase: String = ""
   @Published var modelName: String = ""
   @Published var apiKey: String = ""
   @Published var loaded = false
@@ -26,34 +25,31 @@ class SettingsViewModel: ObservableObject {
     apiProvider = settings.currentProvider
     apiKey = settings.currentConfig.apiKey
     modelName = settings.currentConfig.modelName
-    apiBase = settings.currentConfig.apiBase
     hotkey = settings.hotkey
     loaded = true
-    
+
     if !apiKey.isEmpty && !modelName.isEmpty {
-      let config = ProviderConfig(provider: apiProvider, apiKey: apiKey, modelName: modelName, apiBase: apiBase)
-      Task { await fetchModels(apiBase: config.effectiveApiBase, apiKey: apiKey) }
+      Task { await fetchModels(apiBase: apiProvider.defaultApiBase, apiKey: apiKey) }
     }
   }
 
   func persistCurrentConfig() {
     guard loaded else { return }
-    let config = ProviderConfig(provider: apiProvider, apiKey: apiKey, modelName: modelName, apiBase: apiBase)
+    let config = ProviderConfig(provider: apiProvider, apiKey: apiKey, modelName: modelName)
     SettingsStore.shared.save(config: config)
   }
 
   func refreshModels() {
     guard loaded else { return }
-    let config = ProviderConfig(provider: apiProvider, apiKey: apiKey, modelName: modelName, apiBase: apiBase)
-    let effectiveBase = config.effectiveApiBase
+    let base = apiProvider.defaultApiBase
     let key = apiKey.trimmingCharacters(in: .whitespacesAndNewlines)
-    guard !effectiveBase.isEmpty, !key.isEmpty else {
+    guard !key.isEmpty else {
       models = []
       modelName = ""
       errorText = ""
       return
     }
-    Task { await fetchModels(apiBase: effectiveBase, apiKey: key) }
+    Task { await fetchModels(apiBase: base, apiKey: key) }
   }
 
   func fetchModels(apiBase: String, apiKey: String) async {

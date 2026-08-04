@@ -2,84 +2,214 @@ import AppKit
 import ApplicationServices
 
 enum ResultApplierError: Error {
-  case axWriteFailed
-  case pasteFailed
+  case noFocusedElement
+  case focusChanged
+  case writeFailed
 }
 
 @MainActor
 final class ResultApplier {
-  private static let forcePasteBundleIds: Set<String> = [
-    "com.tinyspeck.slackmacgap",
-    "com.apple.Notes",
-    "com.google.Chrome",
-    "com.microsoft.VSCode",
-  ]
+  private enum WriteStrategy {
+    case selectedText
+    case value
+    case typing
+  }
 
-  private static let pasteDelay: UInt64 = 200_000_000
-  private static let slowAppPasteDelay: UInt64 = 500_000_000
+  private struct Snapshot {
+    let value: String
+    let range: CFRange
 
-  func apply(text: String, targetPid: pid_t? = nil, appBundleId: String = "") async -> Result<Void, Error> {
-    let isSlowApp = Self.forcePasteBundleIds.contains(appBundleId)
-    if isSlowApp {
-      return await copyAndPaste(text: text, targetPid: targetPid, appBundleId: appBundleId, force: true)
+    func expected(afterInserting text: String) -> String? {
+      let nsValue = value as NSString
+      guard range.location >= 0, range.length >= 0, range.location + range.length <= nsValue.length else {
+        return nil
+      }
+      return nsValue.replacingCharacters(in: NSRange(location: range.location, length: range.length), with: text)
+    }
+  }
+
+  private var strategyCache: [String: WriteStrategy] = [:]
+
+  func apply(text: String, targetPid: pid_t? = nil) async -> Result<Void, Error> {
+    guard let element = SelectionProvider.focusedElement() else {
+      AppLogStore.log(level: .error, category: "log.category.write".localized, message: "log.write.no_focus".localized)
+      return .failure(ResultApplierError.noFocusedElement)
     }
 
-    let systemElement = AXUIElementCreateSystemWide()
-    var focused: CFTypeRef?
-    let focusedResult = AXUIElementCopyAttributeValue(systemElement, kAXFocusedUIElementAttribute as CFString, &focused)
-    guard focusedResult == .success, let focusedElement = focused, CFGetTypeID(focusedElement) == AXUIElementGetTypeID() else {
-      AppLogStore.log(level: .warning, category: "log.category.write".localized, message: "log.write.no_focus_fallback".localized)
-      return await copyAndPaste(text: text, targetPid: targetPid, appBundleId: appBundleId)
+    if let targetPid, !Self.matches(element: element, pid: targetPid) {
+      AppLogStore.log(level: .error, category: "log.category.write".localized, message: "log.write.focus_changed".localized)
+      return .failure(ResultApplierError.focusChanged)
     }
 
-    let axElement = focusedElement as! AXUIElement
-    let setResult = AXUIElementSetAttributeValue(axElement, kAXSelectedTextAttribute as CFString, text as CFTypeRef)
-    if setResult == .success {
+    let bundleId = targetPid.flatMap { NSRunningApplication(processIdentifier: $0)?.bundleIdentifier }
+
+    if let bundleId, let cached = strategyCache[bundleId] {
+      if await Self.execute(cached, text: text, on: element, targetPid: targetPid) {
+        return .success(())
+      }
+      strategyCache.removeValue(forKey: bundleId)
+      AppLogStore.log(level: .warning, category: "log.category.write".localized, message: "log.write.cached_strategy_failed".localized)
+    }
+
+    if await Self.writeViaSelectedText(text: text, to: element) {
+      cache(.selectedText, for: bundleId)
       return .success(())
     }
-    AppLogStore.log(level: .warning, category: "log.category.write".localized, message: "log.write.ax_failed_fallback".localized)
-    return await copyAndPaste(text: text, targetPid: targetPid, appBundleId: appBundleId)
+
+    if await Self.writeViaValueReplacement(text: text, to: element) {
+      cache(.value, for: bundleId)
+      return .success(())
+    }
+
+    AXTreeEnabler.enable(for: element)
+    AppLogStore.log(level: .warning, category: "log.category.write".localized, message: "log.write.ax_tree_retry".localized)
+    let retried: WriteStrategy? = await AXTreeEnabler.retry {
+      guard let retryElement = SelectionProvider.focusedElement() else { return nil }
+      if let targetPid, !Self.matches(element: retryElement, pid: targetPid) { return nil }
+      if await Self.writeViaSelectedText(text: text, to: retryElement) { return .selectedText }
+      if await Self.writeViaValueReplacement(text: text, to: retryElement) { return .value }
+      return nil
+    }
+    if let retried {
+      cache(retried, for: bundleId)
+      return .success(())
+    }
+
+    if await Self.writeViaTyping(text: text, targetPid: targetPid) {
+      AppLogStore.log(level: .info, category: "log.category.write".localized, message: "log.write.typing_fallback".localized)
+      cache(.typing, for: bundleId)
+      return .success(())
+    }
+
+    AppLogStore.log(level: .error, category: "log.category.write".localized, message: "log.write.ax_failed".localized)
+    return .failure(ResultApplierError.writeFailed)
   }
 
-  private func copyAndPaste(text: String, targetPid: pid_t?, appBundleId: String = "", force: Bool = false) async -> Result<Void, Error> {
-    let pasteboard = NSPasteboard.general
-    let existing = pasteboard.string(forType: .string)
-    pasteboard.clearContents()
-    pasteboard.setString(text, forType: .string)
+  private func cache(_ strategy: WriteStrategy, for bundleId: String?) {
+    guard let bundleId else { return }
+    strategyCache[bundleId] = strategy
+  }
 
-    if let targetPid, let app = NSRunningApplication(processIdentifier: targetPid) {
-      app.activate(options: [.activateAllWindows])
+  private static func execute(_ strategy: WriteStrategy, text: String, on element: AXUIElement, targetPid: pid_t?) async -> Bool {
+    switch strategy {
+    case .selectedText:
+      return await writeViaSelectedText(text: text, to: element)
+    case .value:
+      return await writeViaValueReplacement(text: text, to: element)
+    case .typing:
+      return await writeViaTyping(text: text, targetPid: targetPid)
     }
+  }
+
+  private static func writeViaSelectedText(text: String, to element: AXUIElement) async -> Bool {
+    let snapshot = snapshot(of: element)
+    guard setSelectedText(text, on: element) else { return false }
+    guard let snapshot, let expected = snapshot.expected(afterInserting: text) else {
+      return true
+    }
+    return await verify(element: element, expected: expected)
+  }
+
+  private static func writeViaValueReplacement(text: String, to element: AXUIElement) async -> Bool {
+    guard let snapshot = snapshot(of: element),
+          let expected = snapshot.expected(afterInserting: text),
+          setValue(expected, on: element),
+          await verify(element: element, expected: expected) else {
+      return false
+    }
+
+    var caret = CFRange(location: snapshot.range.location + (text as NSString).length, length: 0)
+    if let caretValue = AXValueCreate(.cfRange, &caret) {
+      AXUIElementSetAttributeValue(element, kAXSelectedTextRangeAttribute as CFString, caretValue)
+    }
+    AppLogStore.log(level: .info, category: "log.category.write".localized, message: "log.write.value_fallback".localized)
+    return true
+  }
+
+  private static func verify(element: AXUIElement, expected: String) async -> Bool {
+    let normalizedExpected = normalize(expected)
+    for attempt in 0..<10 {
+      if attempt > 0 {
+        try? await Task.sleep(nanoseconds: 150_000_000)
+      }
+      if let value = readValue(from: element), normalize(value) == normalizedExpected {
+        return true
+      }
+    }
+    return false
+  }
+
+  private static func normalize(_ string: String) -> String {
+    string.trimmingCharacters(in: .whitespacesAndNewlines)
+  }
+
+  private static func writeViaTyping(text: String, targetPid: pid_t?) async -> Bool {
+    guard let element = SelectionProvider.focusedElement() else { return false }
+    if let targetPid, !matches(element: element, pid: targetPid) { return false }
+    let snapshot = snapshot(of: element)
 
     let source = CGEventSource(stateID: .hidSystemState)
-    let vKey: CGKeyCode = 0x09
-    let cmdDown = CGEvent(keyboardEventSource: source, virtualKey: vKey, keyDown: true)
-    cmdDown?.flags = .maskCommand
-    let cmdUp = CGEvent(keyboardEventSource: source, virtualKey: vKey, keyDown: false)
-    cmdUp?.flags = .maskCommand
-
-    guard let cmdDown, let cmdUp else {
-      restorePasteboard(existing)
-      AppLogStore.log(level: .error, category: "log.category.write".localized, message: "log.write.paste_failed".localized)
-      return .failure(ResultApplierError.pasteFailed)
+    let characters = Array(text)
+    let chunkSize = 10
+    var index = 0
+    while index < characters.count {
+      let end = min(index + chunkSize, characters.count)
+      var units = Array(String(characters[index..<end]).utf16)
+      guard let keyDown = CGEvent(keyboardEventSource: source, virtualKey: 0, keyDown: true),
+            let keyUp = CGEvent(keyboardEventSource: source, virtualKey: 0, keyDown: false) else {
+        return false
+      }
+      units.withUnsafeBufferPointer { buffer in
+        guard let base = buffer.baseAddress else { return }
+        keyDown.keyboardSetUnicodeString(stringLength: buffer.count, unicodeString: base)
+        keyUp.keyboardSetUnicodeString(stringLength: buffer.count, unicodeString: base)
+      }
+      keyDown.post(tap: .cghidEventTap)
+      keyUp.post(tap: .cghidEventTap)
+      index = end
+      usleep(2000)
     }
 
-    cmdDown.post(tap: .cghidEventTap)
-    cmdUp.post(tap: .cghidEventTap)
-
-    let delay = Self.forcePasteBundleIds.contains(appBundleId) ? Self.slowAppPasteDelay : Self.pasteDelay
-    try? await Task.sleep(nanoseconds: delay)
-    restorePasteboard(existing)
-    let message = force ? "log.write.force_paste_success".localized : "log.write.paste_success".localized
-    AppLogStore.log(level: .info, category: "log.category.write".localized, message: message)
-    return .success(())
+    guard let snapshot, let expected = snapshot.expected(afterInserting: text) else {
+      return true
+    }
+    guard let currentElement = SelectionProvider.focusedElement() else { return false }
+    return await verify(element: currentElement, expected: expected)
   }
 
-  private func restorePasteboard(_ existing: String?) {
-    let pasteboard = NSPasteboard.general
-    if let existing {
-      pasteboard.clearContents()
-      pasteboard.setString(existing, forType: .string)
+  private static func setSelectedText(_ text: String, on element: AXUIElement) -> Bool {
+    AXUIElementSetAttributeValue(element, kAXSelectedTextAttribute as CFString, text as CFTypeRef) == .success
+  }
+
+  private static func setValue(_ value: String, on element: AXUIElement) -> Bool {
+    AXUIElementSetAttributeValue(element, kAXValueAttribute as CFString, value as CFTypeRef) == .success
+  }
+
+  private static func readValue(from element: AXUIElement) -> String? {
+    var valueRef: CFTypeRef?
+    guard AXUIElementCopyAttributeValue(element, kAXValueAttribute as CFString, &valueRef) == .success else {
+      return nil
     }
+    return valueRef as? String
+  }
+
+  private static func snapshot(of element: AXUIElement) -> Snapshot? {
+    guard let value = readValue(from: element) else { return nil }
+    var rangeRef: CFTypeRef?
+    guard AXUIElementCopyAttributeValue(element, kAXSelectedTextRangeAttribute as CFString, &rangeRef) == .success,
+          let rangeRaw = rangeRef, CFGetTypeID(rangeRaw) == AXValueGetTypeID() else {
+      return nil
+    }
+    var range = CFRange()
+    guard AXValueGetValue((rangeRaw as! AXValue), .cfRange, &range) else {
+      return nil
+    }
+    return Snapshot(value: value, range: range)
+  }
+
+  private static func matches(element: AXUIElement, pid: pid_t) -> Bool {
+    var elementPid: pid_t = 0
+    guard AXUIElementGetPid(element, &elementPid) == .success else { return false }
+    return elementPid == pid
   }
 }

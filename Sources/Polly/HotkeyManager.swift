@@ -6,7 +6,6 @@ final class HotkeyManager {
   var onHotkey: (() -> Void)?
   private var hotkeyRef: EventHotKeyRef?
   private var handler: EventHandlerRef?
-  private var currentHotkey: Hotkey?
 
   func register(_ hotkey: Hotkey) -> Bool {
     unregister()
@@ -42,7 +41,6 @@ final class HotkeyManager {
     )
     if registerStatus == noErr {
       hotkeyRef = ref
-      currentHotkey = hotkey
       return true
     }
     AppLogStore.log(level: .error, category: "快捷键", message: "注册失败", detail: "\(registerStatus)")
@@ -58,11 +56,6 @@ final class HotkeyManager {
       RemoveEventHandler(handler)
       self.handler = nil
     }
-    currentHotkey = nil
-  }
-
-  func isRegistered(_ hotkey: Hotkey) -> Bool {
-    currentHotkey == hotkey && hotkeyRef != nil
   }
 
 }

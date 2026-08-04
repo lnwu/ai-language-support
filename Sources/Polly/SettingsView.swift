@@ -52,9 +52,6 @@ struct SettingsView: View {
         viewModel.refreshPermissionStatus()
       }
     }
-    .onChange(of: viewModel.apiBase) { _, _ in
-      viewModel.persistCurrentConfig()
-    }
     .onChange(of: viewModel.apiKey) { _, _ in
       viewModel.persistCurrentConfig()
     }

@@ -9,11 +9,9 @@
 
 "section.api" = "API";
 "field.provider" = "服务商";
-"field.api_base" = "API Base";
 "field.api_key" = "API Key";
 "field.model" = "模型";
 "info.keychain" = "API Key 将使用 macOS Keychain 安全存储。首次保存时系统可能弹出授权弹窗。";
-"status.loading_models" = "正在加载模型列表…";
 "button.refresh_models" = "刷新模型列表";
 
 "provider.deepseek" = "DeepSeek";
@@ -63,7 +61,6 @@
 "error.selection.not_trusted" = "未获得辅助功能权限";
 "error.selection.no_focused_element" = "未检测到可编辑输入框";
 "error.selection.no_selection" = "未检测到选中文本";
-"error.selection.bounds_unavailable" = "无法定位选区";
 
 "log.category.hotkey" = "快捷键";
 "log.category.process" = "流程";
@@ -78,12 +75,14 @@
 "log.process.in_progress" = "上次处理尚未完成，跳过";
 "log.process.failed" = "处理失败";
 "log.selection.success" = "获取成功";
-"log.selection.copy_fallback" = "使用复制兜底";
+"log.selection.ax_tree_retry" = "AX 读取失败，尝试激活辅助功能树";
 "log.llm.success" = "优化成功";
 "log.write.success" = "写入成功";
 "log.write.failed" = "写入失败";
-"log.write.no_focus_fallback" = "未获取焦点，走粘贴兜底";
-"log.write.ax_failed_fallback" = "AX 写入失败，走粘贴兜底";
-"log.write.paste_failed" = "粘贴失败";
-"log.write.paste_success" = "粘贴成功";
-"log.write.force_paste_success" = "强制粘贴成功";
+"log.write.no_focus" = "未获取到焦点输入框";
+"log.write.focus_changed" = "焦点已切换到其他应用，取消写入";
+"log.write.ax_tree_retry" = "AX 写入失败，尝试激活辅助功能树";
+"log.write.value_fallback" = "通过整体值替换写入";
+"log.write.typing_fallback" = "通过模拟键入写入";
+"log.write.cached_strategy_failed" = "缓存的写入方式失效，重新探测";
+"log.write.ax_failed" = "AX 写入失败，该应用不支持直接写入";
