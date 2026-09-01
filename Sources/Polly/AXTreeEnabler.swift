@@ -15,8 +15,10 @@ enum AXTreeEnabler {
   }
 
   static func retry<T>(_ operation: () async -> T?) async -> T? {
-    for _ in 0..<maxAttempts {
-      try? await Task.sleep(nanoseconds: retryInterval)
+    for attempt in 0..<maxAttempts {
+      if attempt > 0 {
+        try? await Task.sleep(nanoseconds: retryInterval)
+      }
       if let value = await operation() {
         return value
       }

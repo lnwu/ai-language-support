@@ -71,11 +71,13 @@
 "log.hotkey.triggered" = "Hotkey triggered";
 "log.hotkey.registered" = "Registered successfully";
 "log.hotkey.register_failed" = "Registration failed";
+"log.hotkey.install_failed" = "Event handler installation failed";
 "log.process.started" = "Started processing";
-"log.process.in_progress" = "Previous processing not finished, skipped";
+"log.process.cancelled" = "Processing cancelled";
 "log.process.failed" = "Processing failed";
 "log.selection.success" = "Retrieved successfully";
 "log.selection.ax_tree_retry" = "AX read failed, enabling accessibility tree";
+"log.selection.pid_failed" = "Failed to get target app pid, skipping write verification";
 "log.llm.success" = "Optimized successfully";
 "log.write.success" = "Written successfully";
 "log.write.failed" = "Write failed";

@@ -44,6 +44,7 @@ struct SettingsView: View {
       viewModel.startPermissionPolling()
     }
     .onDisappear {
+      viewModel.flushPendingSave()
       viewModel.stopRecordingHotkey()
       viewModel.stopPermissionPolling()
     }

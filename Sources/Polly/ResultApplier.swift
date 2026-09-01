@@ -15,7 +15,7 @@ final class ResultApplier {
     case typing
   }
 
-  private struct Snapshot {
+  struct Snapshot {
     let value: String
     let range: CFRange
 
@@ -32,12 +32,12 @@ final class ResultApplier {
 
   func apply(text: String, targetPid: pid_t? = nil) async -> Result<Void, Error> {
     guard let element = SelectionProvider.focusedElement() else {
-      AppLogStore.log(level: .error, category: "log.category.write".localized, message: "log.write.no_focus".localized)
+      AppLogStore.shared.add(level: .error, category: "log.category.write".localized, message: "log.write.no_focus".localized)
       return .failure(ResultApplierError.noFocusedElement)
     }
 
     if let targetPid, !Self.matches(element: element, pid: targetPid) {
-      AppLogStore.log(level: .error, category: "log.category.write".localized, message: "log.write.focus_changed".localized)
+      AppLogStore.shared.add(level: .error, category: "log.category.write".localized, message: "log.write.focus_changed".localized)
       return .failure(ResultApplierError.focusChanged)
     }
 
@@ -48,7 +48,7 @@ final class ResultApplier {
         return .success(())
       }
       strategyCache.removeValue(forKey: bundleId)
-      AppLogStore.log(level: .warning, category: "log.category.write".localized, message: "log.write.cached_strategy_failed".localized)
+      AppLogStore.shared.add(level: .warning, category: "log.category.write".localized, message: "log.write.cached_strategy_failed".localized)
     }
 
     if await Self.writeViaSelectedText(text: text, to: element) {
@@ -62,7 +62,7 @@ final class ResultApplier {
     }
 
     AXTreeEnabler.enable(for: element)
-    AppLogStore.log(level: .warning, category: "log.category.write".localized, message: "log.write.ax_tree_retry".localized)
+    AppLogStore.shared.add(level: .warning, category: "log.category.write".localized, message: "log.write.ax_tree_retry".localized)
     let retried: WriteStrategy? = await AXTreeEnabler.retry {
       guard let retryElement = SelectionProvider.focusedElement() else { return nil }
       if let targetPid, !Self.matches(element: retryElement, pid: targetPid) { return nil }
@@ -76,12 +76,12 @@ final class ResultApplier {
     }
 
     if await Self.writeViaTyping(text: text, targetPid: targetPid) {
-      AppLogStore.log(level: .info, category: "log.category.write".localized, message: "log.write.typing_fallback".localized)
+      AppLogStore.shared.add(level: .info, category: "log.category.write".localized, message: "log.write.typing_fallback".localized)
       cache(.typing, for: bundleId)
       return .success(())
     }
 
-    AppLogStore.log(level: .error, category: "log.category.write".localized, message: "log.write.ax_failed".localized)
+    AppLogStore.shared.add(level: .error, category: "log.category.write".localized, message: "log.write.ax_failed".localized)
     return .failure(ResultApplierError.writeFailed)
   }
 
@@ -122,7 +122,7 @@ final class ResultApplier {
     if let caretValue = AXValueCreate(.cfRange, &caret) {
       AXUIElementSetAttributeValue(element, kAXSelectedTextRangeAttribute as CFString, caretValue)
     }
-    AppLogStore.log(level: .info, category: "log.category.write".localized, message: "log.write.value_fallback".localized)
+    AppLogStore.shared.add(level: .info, category: "log.category.write".localized, message: "log.write.value_fallback".localized)
     return true
   }
 
@@ -139,7 +139,7 @@ final class ResultApplier {
     return false
   }
 
-  private static func normalize(_ string: String) -> String {
+  static func normalize(_ string: String) -> String {
     string.trimmingCharacters(in: .whitespacesAndNewlines)
   }
 
@@ -153,6 +153,7 @@ final class ResultApplier {
     let chunkSize = 10
     var index = 0
     while index < characters.count {
+      if Task.isCancelled { return false }
       let end = min(index + chunkSize, characters.count)
       var units = Array(String(characters[index..<end]).utf16)
       guard let keyDown = CGEvent(keyboardEventSource: source, virtualKey: 0, keyDown: true),
@@ -167,7 +168,7 @@ final class ResultApplier {
       keyDown.post(tap: .cghidEventTap)
       keyUp.post(tap: .cghidEventTap)
       index = end
-      usleep(2000)
+      try? await Task.sleep(nanoseconds: 2_000_000)
     }
 
     guard let snapshot, let expected = snapshot.expected(afterInserting: text) else {

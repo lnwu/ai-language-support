@@ -71,11 +71,13 @@
 "log.hotkey.triggered" = "触发快捷键";
 "log.hotkey.registered" = "注册成功";
 "log.hotkey.register_failed" = "注册失败";
+"log.hotkey.install_failed" = "事件监听安装失败";
 "log.process.started" = "开始处理";
-"log.process.in_progress" = "上次处理尚未完成，跳过";
+"log.process.cancelled" = "已取消处理";
 "log.process.failed" = "处理失败";
 "log.selection.success" = "获取成功";
 "log.selection.ax_tree_retry" = "AX 读取失败，尝试激活辅助功能树";
+"log.selection.pid_failed" = "获取目标应用 pid 失败，跳过写入校验";
 "log.llm.success" = "优化成功";
 "log.write.success" = "写入成功";
 "log.write.failed" = "写入失败";

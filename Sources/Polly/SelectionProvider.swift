@@ -3,7 +3,7 @@ import ApplicationServices
 
 struct TextSelection {
   let text: String
-  let appPid: pid_t
+  let appPid: pid_t?
 }
 
 enum SelectionError: Error {
@@ -34,24 +34,33 @@ final class SelectionProvider {
     }
 
     var selectedText = Self.selectedText(from: initialElement)
+    var sourceElement = initialElement
 
     if selectedText == nil {
       AXTreeEnabler.enable(for: initialElement)
-      AppLogStore.log(level: .warning, category: "log.category.selection".localized, message: "log.selection.ax_tree_retry".localized)
-      let resolved: String? = await AXTreeEnabler.retry({
-        guard let element = Self.focusedElement() else {
+      AppLogStore.shared.add(level: .warning, category: "log.category.selection".localized, message: "log.selection.ax_tree_retry".localized)
+      let resolved: (String, AXUIElement)? = await AXTreeEnabler.retry({
+        guard let element = Self.focusedElement(),
+              let text = Self.selectedText(from: element) else {
           return nil
         }
-        return Self.selectedText(from: element)
+        return (text, element)
       })
-      selectedText = resolved
+      if let resolved {
+        selectedText = resolved.0
+        sourceElement = resolved.1
+      }
     }
 
     guard let text = selectedText, !text.isEmpty else {
       throw SelectionError.noSelection
     }
 
-    let appPid = NSWorkspace.shared.frontmostApplication?.processIdentifier ?? 0
+    var appPid: pid_t = 0
+    guard AXUIElementGetPid(sourceElement, &appPid) == .success else {
+      AppLogStore.shared.add(level: .warning, category: "log.category.selection".localized, message: "log.selection.pid_failed".localized)
+      return TextSelection(text: text, appPid: nil)
+    }
     return TextSelection(text: text, appPid: appPid)
   }
 

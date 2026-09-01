@@ -45,12 +45,6 @@ final class AppLogStore {
     NotificationCenter.default.post(name: .appLogUpdated, object: nil)
   }
 
-  nonisolated static func log(level: AppLogLevel, category: String, message: String, detail: String? = nil) {
-    Task { @MainActor in
-      shared.add(level: level, category: category, message: message, detail: detail)
-    }
-  }
-
   func clearAll() {
     entries.removeAll()
     NotificationCenter.default.post(name: .appLogUpdated, object: nil)

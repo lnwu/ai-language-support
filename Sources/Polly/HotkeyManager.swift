@@ -24,7 +24,7 @@ final class HotkeyManager {
     }, 1, &eventType, UnsafeMutableRawPointer(Unmanaged.passUnretained(self).toOpaque()), &handlerRef)
 
     guard status == noErr else {
-      AppLogStore.log(level: .error, category: "快捷键", message: "监听安装失败", detail: "\(status)")
+      AppLogStore.shared.add(level: .error, category: "log.category.hotkey".localized, message: "log.hotkey.install_failed".localized, detail: "\(status)")
       return false
     }
     handler = handlerRef
@@ -43,7 +43,7 @@ final class HotkeyManager {
       hotkeyRef = ref
       return true
     }
-    AppLogStore.log(level: .error, category: "快捷键", message: "注册失败", detail: "\(registerStatus)")
+    AppLogStore.shared.add(level: .error, category: "log.category.hotkey".localized, message: "log.hotkey.register_failed".localized, detail: "\(registerStatus)")
     return false
   }
 

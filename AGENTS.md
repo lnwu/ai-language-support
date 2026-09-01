@@ -15,6 +15,8 @@ Polly 是一个 macOS 菜单栏应用，用于优化任意应用选中文本，�
 
 - 构建：
   - `xcodebuild -project Polly.xcodeproj -scheme Polly -destination "platform=macOS,arch=arm64" build`
+- 测试：
+  - `xcodebuild -project Polly.xcodeproj -scheme Polly -destination "platform=macOS,arch=arm64" test`
 
 ## 关键路径
 
@@ -23,7 +25,7 @@ Polly 是一个 macOS 菜单栏应用，用于优化任意应用选中文本，�
 - 全局状态：`Sources/Polly/AppState.swift`
 - 设置界面：`Sources/Polly/SettingsView.swift`
 - 设置标签页枚举：`Sources/Polly/SettingsTab.swift`
-- 日志界面：`Sources/Polly/LogsTabView.swift`
+- 设置标签页（权限/通用/测试/日志/快捷键）与视图模型：`Sources/Polly/SettingTabs/`
 - 快捷键监听：`Sources/Polly/HotkeyManager.swift`
 - 快捷键模型：`Sources/Polly/Hotkey.swift`
 - 权限管理：`Sources/Polly/PermissionManager.swift`
@@ -36,3 +38,4 @@ Polly 是一个 macOS 菜单栏应用，用于优化任意应用选中文本，�
 - 日志存储：`Sources/Polly/AppLogStore.swift`、`Sources/Polly/APILogStore.swift`
 - 国际化管理：`Sources/Polly/LocalizationManager.swift`
 - 本地化资源：`Sources/Polly/Resources/en.lproj/`、`Sources/Polly/Resources/zh-Hans.lproj/`
+- 单元测试（XCTest，`@testable import Polly`）：`Tests/PollyTests/`

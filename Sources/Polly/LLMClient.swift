@@ -45,23 +45,11 @@ private struct ChatResponse: Decodable {
   }
 }
 
-struct ModelsResponse: Decodable {
-  let data: [Model]
-
-  struct Model: Decodable {
-    let id: String
-  }
-}
-
 @MainActor
 final class LLMClient {
   private let systemPrompt = "Fix grammar and spelling errors, make it more concise. Return ONLY the optimized text without any explanation, notes, or formatting."
 
-  private let encoder: JSONEncoder = {
-    let encoder = JSONEncoder()
-    encoder.outputFormatting = .prettyPrinted
-    return encoder
-  }()
+  private let encoder = JSONEncoder()
 
   func optimize(text: String) async throws -> String {
     let settings = SettingsStore.shared.load()
@@ -76,6 +64,7 @@ final class LLMClient {
 
     var request = URLRequest(url: url)
     request.httpMethod = "POST"
+    request.timeoutInterval = 30
     request.addValue("application/json", forHTTPHeaderField: "Content-Type")
     request.addValue("Bearer \(config.apiKey)", forHTTPHeaderField: "Authorization")
 

@@ -22,7 +22,12 @@ struct Hotkey: Equatable {
 
   static func build(keyCode: UInt16, modifiers: NSEvent.ModifierFlags, displayKey: String?) -> Hotkey {
     let normalized = modifiers.intersection(.deviceIndependentFlagsMask)
-    let key = displayKey?.isEmpty == false ? displayKey! : keyName(for: keyCode)
+    let key: String
+    if let displayKey, !displayKey.isEmpty {
+      key = displayKey
+    } else {
+      key = keyName(for: keyCode)
+    }
     let display = displayString(modifiers: normalized, key: key)
     return Hotkey(keyCode: UInt32(keyCode), modifiers: normalized, display: display)
   }

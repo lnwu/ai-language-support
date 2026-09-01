@@ -98,7 +98,7 @@ final class OverlayRenderer {
   private func startMouseTracking(size: CGSize) {
     stopMouseTracking()
     lastMouseLocation = NSEvent.mouseLocation
-    let timer = Timer(timeInterval: 1.0 / 120.0, repeats: true) { [weak self] _ in
+    let timer = Timer(timeInterval: 1.0 / 60.0, repeats: true) { [weak self] _ in
       MainActor.assumeIsolated {
         guard let self, self.window?.isVisible == true else { return }
         let mouse = NSEvent.mouseLocation

@@ -252,13 +252,24 @@ struct LogSection: View {
   var isJSON: Bool = false
   var isError: Bool = false
 
+  private var displayContent: String {
+    guard isJSON,
+          let data = content.data(using: .utf8),
+          let object = try? JSONSerialization.jsonObject(with: data),
+          let pretty = try? JSONSerialization.data(withJSONObject: object, options: [.prettyPrinted, .sortedKeys]),
+          let string = String(data: pretty, encoding: .utf8) else {
+      return content
+    }
+    return string
+  }
+
   var body: some View {
     VStack(alignment: .leading, spacing: 4) {
       Text(title)
         .font(.caption.bold())
         .foregroundColor(isError ? .red : .secondary)
 
-      Text(content)
+      Text(displayContent)
         .font(.system(.caption, design: .monospaced))
         .foregroundColor(isError ? .red : .primary)
         .textSelection(.enabled)

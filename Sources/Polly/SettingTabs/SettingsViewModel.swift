@@ -1,5 +1,13 @@
 import SwiftUI
 
+struct ModelsResponse: Decodable {
+  let data: [Model]
+
+  struct Model: Decodable {
+    let id: String
+  }
+}
+
 @MainActor
 class SettingsViewModel: ObservableObject {
   @Published var apiProvider: APIProvider = .deepseek
@@ -16,6 +24,7 @@ class SettingsViewModel: ObservableObject {
   @Published var hotkeyError: String = ""
   var hotkeyMonitor: Any?
   var permissionTimer: Timer?
+  private var persistTask: Task<Void, Never>?
 
   let permissionManager = PermissionManager()
 
@@ -35,6 +44,19 @@ class SettingsViewModel: ObservableObject {
 
   func persistCurrentConfig() {
     guard loaded else { return }
+    persistTask?.cancel()
+    let config = ProviderConfig(provider: apiProvider, apiKey: apiKey, modelName: modelName)
+    persistTask = Task {
+      try? await Task.sleep(nanoseconds: 500_000_000)
+      guard !Task.isCancelled else { return }
+      SettingsStore.shared.save(config: config)
+    }
+  }
+
+  func flushPendingSave() {
+    guard let persistTask else { return }
+    persistTask.cancel()
+    self.persistTask = nil
     let config = ProviderConfig(provider: apiProvider, apiKey: apiKey, modelName: modelName)
     SettingsStore.shared.save(config: config)
   }
